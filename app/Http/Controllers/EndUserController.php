@@ -14,6 +14,7 @@ use App\Models\Year;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Vinkla\Hashids\Facades\Hashids;
 
 class EndUserController extends Controller
 {
@@ -98,8 +99,16 @@ class EndUserController extends Controller
 
         return view('end_user.ppmps_page', compact('year', 'years', 'budgetAllocations'));
     }
-    public function endUserPPMPDetails($id)
+    public function endUserPPMPDetails($hashid)
     {
+
+        $decoded = Hashids::decode($hashid);
+        if (empty($decoded)) {
+            abort(404); // hash is invalid or not decodable
+        }
+
+        $id = $decoded[0];
+
         $ppmp = PPMP::findOrFail($id);
         return view('end_user.ppmp_details_page', compact('ppmp'));
     }
@@ -145,10 +154,43 @@ class EndUserController extends Controller
         return view('end_user.purchase_request_page', compact('approvedPPMP', 'purchaseRequests', 'years'));
     }
 
-    public function endUserPRDetails($id)
+    public function endUserPRDetails($hashid)
     {
+        $decoded = Hashids::decode($hashid);
+        if (empty($decoded)) {
+            abort(404); // hash is invalid or not decodable
+        }
+
+        $id = $decoded[0];
         $purchaseRequest = PurchaseRequest::findOrFail($id);
         return view('end_user.purchase_request_details_page', compact('purchaseRequest'));
+    }
+
+    public function endUserSubmitPurchaseRequest(Request $request)
+    {
+        $validatedData = $request->validate([
+            'pr_id' => 'required|numeric|exists:purchase_requests,id',
+            'is_submitted' => 'required|numeric'
+        ]);
+
+        $purchaseRequest = PurchaseRequest::findOrFail($validatedData['pr_id']);
+
+        if ($purchaseRequest &&  $purchaseRequest->purchaseRequestItems->count() <= 0) {
+            return  response()->json(['success' => false, 'message' => 'Cannot submit a PPMP template without items!']);
+        }
+        if ($purchaseRequest && $purchaseRequest->is_submitted == 0) {
+            $purchaseRequest->update([
+                'is_submitted' => 1
+            ]);
+            return response()->json(['success' => true, 'message' => 'Purchase Request Successfully Submitted!']);
+        } else if ($purchaseRequest && $purchaseRequest->is_submitted == 1) {
+            $purchaseRequest->update([
+                'is_submitted' => 0
+            ]);
+            return response()->json(['success' => true, 'message' => 'Purchase Request Successfully Unsubmitted!']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'There was an error submitting your Purchase Request Template!']);
     }
 
 

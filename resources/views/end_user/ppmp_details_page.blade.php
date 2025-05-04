@@ -573,8 +573,13 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save me-1"></i> Save Changes
+
+                        <button type="submit" class="btn btn-success" id="submitPPMPButton">
+                            <span class="submit-text">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            </span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status"
+                                aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
@@ -718,9 +723,14 @@
                         <div>
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
                             <!-- Save Changes Button -->
-                            <button type="submit" class="btn btn-success"
+                            <button type="submit" class="btn btn-success" id="editSubmitPPMPButton"
                                 @if ($ppmp->is_submitted == 1) style="display: none;" @endif>
-                                <i class="fas fa-save me-1"></i> Save Changes
+
+                                <span class="submit-text">
+                                    <i class="fas fa-save me-1"></i> Save Changes
+                                </span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status"
+                                    aria-hidden="true"></span>
                             </button>
                         </div>
                     </div>
@@ -748,6 +758,7 @@
                 confirmButtonText: 'Yes'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    showLoadingIndicator();
                     $.ajax({
                         url: "{{ route('endUserSubmitPPMPTemplate') }}", // URL is static
                         type: 'POST',
@@ -758,6 +769,7 @@
                             is_submitted: isSubmitted, // Send the ID via POST data
                         },
                         success: function(response) {
+                            hideLoadingIndicator();
                             if (response.success) {
                                 Swal.fire('Success!', `${response.message}`, 'success').then(() => {
                                     location.reload(); // Refresh the page
@@ -769,9 +781,9 @@
                                     text: response.message
                                 });
                             }
-
                         },
                         error: function(xhr, status, error) {
+                            hideLoadingIndicator();
                             Swal.fire('Error!', 'Something went wrong.', 'error').then(() => {
 
                             });
@@ -844,6 +856,12 @@
         $('#addItemToPPMForm').on('submit', function(e) {
             e.preventDefault();
 
+            // Disable submit button and show loading state
+            const submitButton = $('#submitPPMPButton');
+            submitButton.prop('disabled', true);
+            submitButton.find('.submit-text').text('Saving Changes...');
+            submitButton.find('.spinner-border').removeClass('d-none');
+
             $.ajax({
                 url: "{{ route('endUserAddItemToPPMP') }}",
                 type: 'POST',
@@ -891,6 +909,12 @@
                         text: 'Something went wrong.'
                     });
                     console.error(xhr.responseText);
+                },
+                complete: function() {
+                    // Re-enable submit button and hide loading state
+                    submitButton.prop('disabled', false);
+                    submitButton.find('.submit-text').text('Changes Saved');
+                    submitButton.find('.spinner-border').addClass('d-none');
                 }
             });
         });
@@ -937,6 +961,12 @@
 
         $('#editItemToPPMPForm').on('submit', function(e) {
             e.preventDefault();
+
+            // Disable submit button and show loading state
+            const submitButton = $('#editSubmitPPMPButton');
+            submitButton.prop('disabled', true);
+            submitButton.find('.submit-text').text('Saving Changes...');
+            submitButton.find('.spinner-border').removeClass('d-none');
 
             $.ajax({
                 url: "{{ route('endUserEditPPMPItem') }}",
@@ -985,6 +1015,12 @@
                         text: 'Something went wrong.'
                     });
                     console.error(xhr.responseText);
+                },
+                complete: function() {
+                    // Re-enable submit button and hide loading state
+                    submitButton.prop('disabled', false);
+                    submitButton.find('.submit-text').text('Changes Saved');
+                    submitButton.find('.spinner-border').addClass('d-none');
                 }
             });
 
@@ -1013,6 +1049,7 @@
                 confirmButtonText: "Yes, delete it!",
             }).then((result) => {
                 if (result.isConfirmed) {
+                    showLoadingIndicator();
                     $.ajax({
                         url: "{{ route('endUserDeleteItemFromPPMP') }}", // URL is static
                         type: 'POST',
@@ -1022,6 +1059,7 @@
                             item_id: itemId, // Send the ID via POST data
                         },
                         success: function(response) {
+                            hideLoadingIndicator();
                             if (response.success) {
                                 Swal.fire({
                                     icon: 'success',
@@ -1039,6 +1077,7 @@
                             }
                         },
                         error: function(xhr, status, error) {
+                            hideLoadingIndicator();
                             Swal.fire('Error!', 'Something went wrong.', 'error').then(() => {
 
                             });

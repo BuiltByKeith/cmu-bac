@@ -7,6 +7,7 @@ use App\Models\PPMP;
 use App\Models\PPMPComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Vinkla\Hashids\Facades\Hashids;
 
 class PPMPController extends Controller
 {
@@ -28,7 +29,22 @@ class PPMPController extends Controller
             })
             ->get();
 
-        return response()->json($ppmps);
+        $ppmpArray = [];
+
+        foreach ($ppmps as $ppmp) {
+            $ppmpArray[] = [
+                'id' => $ppmp->id,
+                'hashid' => Hashids::encode($ppmp->id),
+                'ppmpCode' => $ppmp->ppmp_code,
+                'accountCode' => $ppmp->budgetAllocation->accountCode->account_name,
+                'fundSource' => $ppmp->budgetAllocation->wholeBudget->source_of_fund,
+                'dateSubmitted' => $ppmp->updated_at->format('F d, Y'),
+                'approvalStatus' => $ppmp->approval_status,
+                'submissionStatus' => $ppmp->is_submitted,
+            ];
+        }
+
+        return response()->json($ppmpArray);
     }
 
 

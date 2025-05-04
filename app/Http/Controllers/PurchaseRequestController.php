@@ -91,7 +91,7 @@ class PurchaseRequestController extends Controller
             ]);
         }
 
-        return redirect()->back()->with(['success' => true, 'message' => 'Purchase Request created successfully with items copied from PPMP!']);
+        return response()->json(['success' => true, 'message' => 'Purchase Request created successfully with items copied from PPMP!']);
     }
 
 
@@ -110,6 +110,7 @@ class PurchaseRequestController extends Controller
         foreach ($purchaseRequestsObject as $purchaseRequest) {
             $purchaseRequestArray[] = [
                 'id' => $purchaseRequest->id,
+                'hashid' => Hashids::encode($purchaseRequest->id),
                 'pr_code' => $purchaseRequest->pr_code,
                 'created_by' => $purchaseRequest->preparedBy
                     ? $purchaseRequest->preparedBy->firstname . ' ' . substr($purchaseRequest->preparedBy->middlename, 0, 1) . ' ' . $purchaseRequest->preparedBy->lastname
@@ -118,6 +119,7 @@ class PurchaseRequestController extends Controller
                     ? Carbon::parse($purchaseRequest->date_submitted)->format('F d, Y')
                     : '',
                 'approval_status' => $purchaseRequest->approval_status,
+                'submission_status' => $purchaseRequest->is_submitted,
             ];
         }
 

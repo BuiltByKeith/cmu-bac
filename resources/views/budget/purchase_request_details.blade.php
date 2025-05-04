@@ -90,8 +90,8 @@
                                                 $item->item->prices()->where('is_active', 1)->first()->price ?? 0;
                                             $totalCost = $quantity * $unitPrice;
                                         @endphp
-                                        <tr
-                                            onclick="showItemDetailModal({{ $item->id }}, '{{ $item->item->item_name }}')">
+                                        <tr class="{{ $item->status === 1 ? 'table-success' : 'table-danger' }}"
+                                            onclick="showItemDetailModal({{ $item->id }}, '{{ $item->item->item_name }}', {{ $item->status }})">
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $item->item->unit_of_measure ?? 'N/A' }}</td>
                                             <td>{{ $item->item->item_name }} ({{ $item->item->item_description }})</td>
@@ -154,16 +154,28 @@
                     <h5 class="modal-title">PR Item Detail</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="updatePPMPStatusForm" action="" method="POST">
+                <form id="updatePRItemForm" method="POST">
                     @csrf
                     <div class="modal-body mx-3">
-
-                        <input type="text" id="sample" name="sample" class="form-control">
+                        <input type="hidden" id="id" name="id">
+                        <div class="mb-3">
+                            <input type="text" id="sample" name="sample" class="form-control" readonly>
+                        </div>
+                        <div class="form-check form-switch">
+                            <label class="form-check-label" for="flexSwitchCheckChecked">Available?</label>
+                            <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked=""
+                                onchange="updateStatusValue()">
+                        </div>
+                        <input type="hidden" id="status" name="status" value="1">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save me-1"></i> Save Changes
+                        <button type="submit" class="btn btn-success" id="updatePRItemButton">
+                            <span class="submit-text">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            </span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status"
+                                aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
@@ -172,9 +184,82 @@
     </div>
 
     <script>
-        function showItemDetailModal(id, name) {
+        // Check for stored success message on page load
+        $(document).ready(function() {
+            const successMessage = localStorage.getItem('prSuccessMessage');
+            if (successMessage) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: successMessage
+                });
+                localStorage.removeItem('prSuccessMessage');
+            }
+        });
+
+        $('#updatePRItemForm').submit(function(e) {
+            e.preventDefault();
+
+            // Disable submit button and show loading state
+            const submitButton = $('#updatePRItemButton');
+            submitButton.prop('disabled', true);
+            submitButton.find('.submit-text').text('Saving Changes...');
+            submitButton.find('.spinner-border').removeClass('d-none');
+
+            $.ajax({
+                url: "{{ route('endUserUpdatePRItem') }}",
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: $('#id').val(),
+                    status: $('#status').val(),
+                },
+                dataType: 'json',
+                success: function(response) {
+                    // Store success message in localStorage
+                    localStorage.setItem('prSuccessMessage', response.message);
+
+                    // Reload the page
+                    location.reload();
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Something went wrong.'
+                    });
+                    console.error(xhr.responseText);
+
+                    // Re-enable submit button and hide loading state on error
+                    submitButton.prop('disabled', false);
+                    submitButton.find('.submit-text').text('Save Changes');
+                    submitButton.find('.spinner-border').addClass('d-none');
+                }
+            });
+        });
+
+        function showItemDetailModal(id, name, status) {
+            $('#id').val(id);
             $('#sample').val(name);
+
+            // Set the toggle button state based on the status
+            const toggleButton = $('#flexSwitchCheckChecked');
+            const statusInput = $('#status');
+            if (status === 1) {
+                toggleButton.prop('checked', true);
+                statusInput.val(1);
+            } else {
+                toggleButton.prop('checked', false);
+                statusInput.val(0);
+            }
+
             $('#prItemDetailModal').modal('show');
+        }
+
+        function updateStatusValue() {
+            const toggleButton = $('#flexSwitchCheckChecked');
+            const statusInput = $('#status');
+            statusInput.val(toggleButton.is(':checked') ? 1 : 0);
         }
     </script>
 

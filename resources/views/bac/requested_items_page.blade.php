@@ -54,6 +54,8 @@
                     hideLoadingIndicator();
                     var table = $('#requestedItemTable').DataTable();
                     table.clear();
+
+
                     data.forEach(function(requestedItem) {
                         var viewButton = `<button type="button" class="btn btn-sm btn-success me-1" 
                             onclick="viewRequestedItemDetails(

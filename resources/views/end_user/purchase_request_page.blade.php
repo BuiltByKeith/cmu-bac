@@ -63,7 +63,7 @@
                     <h5 class="modal-title">Add Item</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="addNewPRForm" action="{{ route('endUserCreateNewPR') }}" method="POST">
+                <form id="addNewPRForm" method="POST">
                     @csrf
 
                     <div class="modal-body mx-3">
@@ -88,8 +88,12 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save me-1"></i> Save Changes
+                        <button type="submit" class="btn btn-success" id="createNewPRButton">
+
+                            <span class="submit-text">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            </span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
@@ -97,7 +101,7 @@
         </div>
     </div>
 
-    
+
 
 
     <script>
@@ -137,7 +141,7 @@
                                 approvalStatusBadge = '<span class="badge bg-secondary">Unknown</span>';
                         }
                         var submissionStatusBadge;
-                        switch (purchaseRequest.approval_status) {
+                        switch (purchaseRequest.submission_status) {
                             case 0:
                                 submissionStatusBadge = '<span class="badge bg-warning">Draft</span>';
                                 break;
@@ -151,7 +155,7 @@
                                     '<span class="badge bg-secondary">Unknown</span>';
                         }
                         var viewButton = `<button type="button" class="btn btn-sm btn-success me-1" 
-                            onclick="viewPurchaseRequest(${purchaseRequest.id})" title="Edit">
+                            onclick="viewPurchaseRequest('${purchaseRequest.hashid}')" title="Edit">
                             <i class="fas fa-eye"></i>
                         </button>`;
 
@@ -174,8 +178,62 @@
             });
         }
 
-        function viewPurchaseRequest(id) {
-            window.location.href = `end-user-purchase-request-details/${id}`;
+        $('#addNewPRForm').submit(function(e) {
+            e.preventDefault();
+
+            // Disable submit button and show loading state
+            const submitButton = $('#createNewPRButton');
+            submitButton.prop('disabled', true);
+            submitButton.find('.submit-text').text('Saving Changes...');
+            submitButton.find('.spinner-border').removeClass('d-none');
+
+            $.ajax({
+                url: "{{ route('endUserCreateNewPR') }}",
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    formSelectPPMPToPR: $('#formSelectPPMPToPR').val(),
+                    purposeOfRequest: $('#purposeOfRequest').val(),
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        $('#addNewPRForm')[0].reset();
+                        $('#createNewPRModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message
+                        }).then(() => {
+                            location.reload(); // Refresh the page
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Something went wrong.'
+                    });
+                    console.error(xhr.responseText);
+                },
+                complete: function() {
+                    // Re-enable submit button and hide loading state
+                    submitButton.prop('disabled', false);
+                    submitButton.find('.submit-text').text('Changes Saved');
+                    submitButton.find('.spinner-border').addClass('d-none');
+                }
+            });
+        });
+
+        function viewPurchaseRequest(hashid) {
+            window.location.href = `end-user-purchase-request-details/${hashid}`;
         }
 
 

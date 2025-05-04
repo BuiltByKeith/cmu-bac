@@ -242,7 +242,13 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save Budget</button>
+                            <button type="submit" class="btn btn-success" id="addBudgetToAccountCodeButton">
+                                <span class="submit-text">
+                                    <i class="fas fa-save me-1"></i> Save Changes
+                                </span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status"
+                                    aria-hidden="true"></span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -306,7 +312,13 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save Budget</button>
+                            <button type="submit" class="btn btn-success" id="editBudgetToAccountCodeButton">
+                                <span class="submit-text">
+                                    <i class="fas fa-save me-1"></i> Save Changes
+                                </span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status"
+                                    aria-hidden="true"></span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -536,6 +548,12 @@
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
 
+                    const submitButton = $('#addBudgetToAccountCodeButton');
+                    submitButton.prop('disabled', true);
+                    submitButton.find('.submit-text').text('Saving Changes...');
+                    submitButton.find('.spinner-border').removeClass('d-none');
+
+
                     let amount = $('#budgetAmount').val();
                     amount = amount.replace(/[₱,\s]/g, '');
                     amount = parseFloat(amount);
@@ -579,6 +597,11 @@
                                 text: 'Something went wrong while saving the budget allocation.'
                             });
                             console.error(xhr.responseText);
+                        },
+                        complete: function() {
+                            submitButton.prop('disabled', false);
+                            submitButton.find('.submit-text').text('Save Budget');
+                            submitButton.find('.spinner-border').addClass('d-none');
                         }
                     });
                 });
@@ -606,6 +629,7 @@
                         confirmButtonText: 'Yes'
                     }).then((result) => {
                         if (result.isConfirmed) {
+                            showLoadingIndicator();
                             $.ajax({
                                 url: "{{ route('budgetOfficeDeleteBudgetAllocation') }}",
                                 type: 'POST',
@@ -615,6 +639,7 @@
                                     budget_allocation_id: id
                                 },
                                 success: function(response) {
+                                    hideLoadingIndicator();
                                     Swal.fire('Deleted!', `${response.message}`, 'success')
                                         .then(
                                             () => {
@@ -629,6 +654,7 @@
                                             });
                                 },
                                 error: function(xhr, status, error) {
+                                    hideLoadingIndicator();
                                     Swal.fire('Error!', 'Something went wrong.', 'error')
                                         .then(
                                             () => {
@@ -667,6 +693,11 @@
 
                 $(document).on('submit', '#editBudgetAllocationForm', function(e) {
                     e.preventDefault();
+
+                    const submitButton = $('#editBudgetToAccountCodeButton');
+                    submitButton.prop('disabled', true);
+                    submitButton.find('.submit-text').text('Saving Changes...');
+                    submitButton.find('.spinner-border').removeClass('d-none');
 
                     // Retrieve the updated values
                     let amount = $('#editBudgetAllocationAmount').val();
@@ -710,7 +741,13 @@
                                 text: 'Something went wrong while saving the budget allocation.'
                             });
                             console.error(xhr.responseText);
+                        },
+                        complete: function() {
+                            submitButton.prop('disabled', false);
+                            submitButton.find('.submit-text').text('Save Budget');
+                            submitButton.find('.spinner-border').addClass('d-none');
                         }
+
                     });
                 });
 

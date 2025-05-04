@@ -91,8 +91,11 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save me-1"></i> Save Changes
+                        <button type="submit" class="btn btn-success" id="submitPPMPButton">
+                            <span class="submit-text">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            </span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
@@ -123,17 +126,18 @@
 
                     data.forEach(function(ppmp) {
                         let submissionStatus;
-                        if (ppmp.is_submitted == 0) {
+                        if (ppmp.submissionStatus == 0) {
                             submissionStatus = '<span class="badge bg-warning">Draft</span>';
                         } else {
-                            let formattedDate = new Date(ppmp.updated_at).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: true
-                            });
+                            let formattedDate = new Date(ppmp.dateSubmitted).toLocaleDateString(
+                                'en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true
+                                });
 
                             submissionStatus =
                                 `<span class="badge bg-success">Submitted</span> <small class="text-muted">${formattedDate}</small>`;
@@ -141,9 +145,9 @@
 
 
                         let approvalStatus;
-                        if (ppmp.approval_status == 0) {
+                        if (ppmp.approvalStatus == 0) {
                             approvalStatus = '<span class="badge bg-warning">Pending</span>';
-                        } else if (ppmp.approval_status == 1) {
+                        } else if (ppmp.approvalStatus == 1) {
                             approvalStatus =
                                 '<span class="badge bg-success">Approved</span> <small class="text-muted">Ready for PR</small>';
                         } else {
@@ -152,7 +156,7 @@
 
                         // Base action buttons that are always shown
                         var actionButtons = `
-            <button type="button" class="btn btn-sm btn-primary" title="View PPMP" onclick="viewPPMP(${ppmp.id})">
+            <button type="button" class="btn btn-sm btn-primary" title="View PPMP" onclick="viewPPMP('${ppmp.hashid}')">
                 <i class="fas fa-eye"></i> 
             </button>
             <button type="button" class="btn btn-sm btn-danger" title="Delete PPMP" onclick="deletePPMP(${ppmp.id}, '${ppmp.ppmp_code}')">
@@ -163,9 +167,9 @@
 
 
                         table.row.add([
-                            ppmp.ppmp_code,
-                            ppmp.budget_allocation.account_code.account_name,
-                            ppmp.budget_allocation.whole_budget.source_of_fund,
+                            ppmp.ppmpCode,
+                            ppmp.accountCode,
+                            ppmp.fundSource,
                             submissionStatus,
                             approvalStatus,
                             actionButtons
@@ -307,6 +311,12 @@
         $('#addNewPPMPForm').on('submit', function(e) {
             e.preventDefault();
 
+            // Disable submit button and show loading state
+            const submitButton = $('#submitPPMPButton');
+            submitButton.prop('disabled', true);
+            submitButton.find('.submit-text').text('Saving Changes...');
+            submitButton.find('.spinner-border').removeClass('d-none');
+
             $.ajax({
                 url: "{{ route('endUserAddNewPPMP') }}",
                 type: 'POST',
@@ -325,7 +335,6 @@
                     }).then(() => {
                         refreshPPMPsTable($('#filterByYear').val());
                         refreshBudgetAllocations($('#filterByYear').val());
-
                     });
                 },
                 error: function(xhr) {
@@ -335,6 +344,12 @@
                         text: 'Something went wrong.'
                     });
                     console.error(xhr.responseText);
+                },
+                complete: function() {
+                    // Re-enable submit button and hide loading state
+                    submitButton.prop('disabled', false);
+                    submitButton.find('.submit-text').text('Changes Saved');
+                    submitButton.find('.spinner-border').addClass('d-none');
                 }
             });
         });

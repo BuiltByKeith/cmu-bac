@@ -127,10 +127,10 @@
                                     <tr>
                                         <td colspan="6" class="text-end">
                                             <div class="row align-items-center">
-                                                <div class="col-6 text-start">Purpose:</div>
-                                                <div class="col-6 text-start">
-                                                    <strong>{{ $purchaseRequest->purpose }}</strong>
+                                                <div class="text-start">Purpose: <span
+                                                        style="font-weight: bold">{{ $purchaseRequest->purpose }}</span>
                                                 </div>
+
                                             </div>
                                         </td>
                                     </tr>
@@ -156,7 +156,15 @@
                             </table>
 
                             <div class="text-center">
-                                <button class="btn btn-success">Submit</button>
+                                @if ($purchaseRequest->approval_status == 0)
+                                    @if ($purchaseRequest->is_submitted == 0)
+                                        <button class="btn btn-success" type="button"
+                                            onclick="submitPRTemplate({{ $purchaseRequest->id }}, {{ $purchaseRequest->is_submitted }})">Submit</button>
+                                    @elseif ($purchaseRequest->is_submitted == 1)
+                                        <button class="btn btn-warning" type="button"
+                                            onclick="submitPRTemplate({{ $purchaseRequest->id }}, {{ $purchaseRequest->is_submitted }})">Unsubmit</button>
+                                    @endif
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -196,6 +204,62 @@
         function showPrItemDetailModal(itemName) {
             $('#itemName').text(itemName);
             $('#viewItemInPrModal').modal('show');
+        }
+
+        function submitPRTemplate(prId, isSubmitted) {
+            // Determine the title and text based on the isSubmitted value
+            let alertTitle = isSubmitted ? "Are you sure you want to unsubmit this Purchase Request?" :
+                "Are you sure you want to submit this Purchase Request?";
+            let alertText = isSubmitted ?
+                "Once this Purchase Request is unsubmitted, the BAC Office will no longer see this plan." :
+                "Once this Purchase Request is submitted, the BAC Office will be able to see this plan and you can no longer unsubmit.";
+
+            Swal.fire({
+                title: alertTitle,
+                text: alertText,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#02681e',
+                cancelButtonColor: 'd33',
+                confirmButtonText: 'Yes'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoadingIndicator();
+                    $.ajax({
+                        url: "{{ route('endUserSubmitPurchaseRequest') }}", // URL is static
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            _token: "{{ csrf_token() }}", // CSRF token for security
+                            pr_id: prId, // Send the ID via POST data
+                            is_submitted: isSubmitted, // Send the ID via POST data
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire('Success!', `${response.message}`, 'success').then(() => {
+                                    location.reload(); // Refresh the page
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: response.message
+                                });
+                            }
+
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire('Error!', 'Something went wrong.', 'error').then(() => {
+
+                            });
+                            console.error(xhr.responseText);
+                        },
+                        complete: function() {
+                            hideLoadingIndicator();
+                        }
+                    });
+                }
+            });
         }
     </script>
 @endsection

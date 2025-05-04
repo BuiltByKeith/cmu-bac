@@ -462,6 +462,10 @@
         $('#updatePPMPStatusForm').on('submit', function(e) {
             e.preventDefault();
 
+            // Get the submit button
+            const submitButton = $(this).find('button[type="submit"]');
+            const originalButtonText = submitButton.html();
+
             Swal.fire({
                 title: 'Are you sure?',
                 text: "Do you want to update the PPMP status?",
@@ -472,6 +476,10 @@
                 confirmButtonText: 'Yes'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Show loading state
+                    submitButton.prop('disabled', true);
+                    submitButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+
                     $.ajax({
                         url: "{{ route('budgetOfficeUpdatePPMPStatus') }}",
                         type: 'POST',
@@ -483,6 +491,10 @@
                         },
                         dataType: 'json',
                         success: function(response) {
+                            // Restore button state
+                            submitButton.prop('disabled', false);
+                            submitButton.html(originalButtonText);
+
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success!',
@@ -492,6 +504,10 @@
                             });
                         },
                         error: function(xhr) {
+                            // Restore button state
+                            submitButton.prop('disabled', false);
+                            submitButton.html(originalButtonText);
+
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error!',
@@ -512,6 +528,58 @@
                 commentSection.style.display = 'none';
             }
         }
+
+        // Add loading state for comment form submission
+        $('#addCommentForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const submitButton = $(this).find('button[type="submit"]');
+            const originalButtonText = submitButton.html();
+
+            // Show loading state
+            submitButton.prop('disabled', true);
+            submitButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    addCommentId: $('#addCommentId').val(),
+                    addComment: $('#addComment').val()
+                },
+                dataType: 'json',
+                success: function(response) {
+                    // Restore button state
+                    submitButton.prop('disabled', false);
+                    submitButton.html(originalButtonText);
+
+                    // Clear the input field
+                    $('#addComment').val('');
+
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Comment added successfully'
+                    }).then(() => {
+                        location.reload(); // Refresh the page
+                    });
+                },
+                error: function(xhr) {
+                    // Restore button state
+                    submitButton.prop('disabled', false);
+                    submitButton.html(originalButtonText);
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to add comment'
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        });
     </script>
 
 @endsection

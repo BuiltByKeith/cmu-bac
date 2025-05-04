@@ -130,8 +130,11 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save me-1"></i> Save Changes
+                        <button type="submit" class="btn btn-success" id="addYearlyBudgetButton">
+                            <span class="submit-text">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            </span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
@@ -211,8 +214,12 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save me-1"></i> Save Changes
+                        <button type="submit" class="btn btn-success" id="editYearlyBudgetButton">
+                            <span class="submit-text">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            </span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status"
+                                aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
@@ -303,6 +310,12 @@
         $('#addNewYearlyBudgetForm').on('submit', function(e) {
             e.preventDefault();
 
+            // Disable submit button and show loading state
+            const submitButton = $('#addYearlyBudgetButton');
+            submitButton.prop('disabled', true);
+            submitButton.find('.submit-text').text('Saving Changes...');
+            submitButton.find('.spinner-border').removeClass('d-none');
+
 
             // Get the price value and clean it
             let yearAmount = $('#formAddYearlyBudgetAmount').val();
@@ -342,6 +355,12 @@
                         text: 'Something went wrong.'
                     });
                     console.error(xhr.responseText);
+                },
+                complete: function() {
+                    // Re-enable submit button and hide loading state on error
+                    submitButton.prop('disabled', false);
+                    submitButton.find('.submit-text').text('Save Changes');
+                    submitButton.find('.spinner-border').addClass('d-none');
                 }
             });
         });
@@ -360,6 +379,11 @@
         // Handle form submission
         $('#editYearlyBudgetForm').on('submit', function(e) {
             e.preventDefault();
+
+            const submitButton = $('#editYearlyBudgetButton');
+            submitButton.prop('disabled', true);
+            submitButton.find('.submit-text').text('Saving Changes...');
+            submitButton.find('.spinner-border').removeClass('d-none');
 
             // Get the price value and clean it
             let yearAmount = $('#formEditYearlyBudgetAmount').val();
@@ -397,6 +421,12 @@
                         text: 'Something went wrong.'
                     });
                     console.error(xhr.responseText);
+                },
+                complete: function() {
+                    // Re-enable submit button and hide loading state on error
+                    submitButton.prop('disabled', false);
+                    submitButton.find('.submit-text').text('Save Changes');
+                    submitButton.find('.spinner-border').addClass('d-none');
                 }
             });
         });
@@ -416,6 +446,7 @@
                 confirmButtonText: 'Yes'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    showLoadingIndicator();
                     $.ajax({
                         url: "{{ route('deleteYearlyBudget') }}", // URL is static
                         type: 'POST',
@@ -427,11 +458,13 @@
                             year: year,
                         },
                         success: function(response) {
+                            hideLoadingIndicator();
                             Swal.fire('Deleted!', `${response.message}`, 'success').then(() => {
                                 refreshYearlyBudgetTable($('#filterByYear').val());
                             });
                         },
                         error: function(xhr, status, error) {
+                            hideLoadingIndicator();
                             Swal.fire('Error!', 'Something went wrong.', 'error').then(() => {
                                 refreshYearlyBudgetTable($('#filterByYear').val());
                                 g;
@@ -439,6 +472,9 @@
                             });
                             console.error(xhr.responseText);
                         },
+                        complete: function() {
+                            hideLoadingIndicator();
+                        }
                     });
                 }
             });

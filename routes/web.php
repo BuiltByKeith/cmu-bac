@@ -15,6 +15,7 @@ use App\Http\Controllers\PPMPCommentController;
 use App\Http\Controllers\PPMPController;
 use App\Http\Controllers\PPMPItemController;
 use App\Http\Controllers\PurchaseRequestController;
+use App\Http\Controllers\PurchaseRequestItemController;
 use App\Http\Controllers\RequestedItemController;
 use App\Http\Controllers\SignatoryController;
 use App\Http\Controllers\UserController;
@@ -26,6 +27,7 @@ use App\Models\Canvass;
 use App\Models\CollegeOfficeUnit;
 use App\Models\PPMP;
 use App\Models\PPMPItem;
+use App\Models\PurchaseRequestItem;
 use App\Models\RequestedItem;
 use App\Models\Signatory;
 use GuzzleHttp\Psr7\Request;
@@ -183,6 +185,7 @@ Route::middleware('auth', CheckRole::class . ':3')->group(function () {
 
     // BUDGET OFFICE MANAGEMENT OF PURCHASE REQUESTS
     Route::get('budget-office-fetch-purchase-requests', [PurchaseRequestController::class, 'budgetOfficeFetchPurchaseRequests'])->name('budgetOfficeFetchPurchaseRequests');
+    Route::post('end-user-update-pr-item', [PurchaseRequestItemController::class, 'endUserUpdatePRItem'])->name('endUserUpdatePRItem');
 });
 
 // USER
@@ -192,10 +195,10 @@ Route::middleware('auth', CheckRole::class . ':4')->group(function () {
     Route::get('user-request-items-page', [EndUserController::class, 'userRequestItemsPage'])->name('userRequestItemsPage');
     Route::get('user-ppmps-page', [EndUserController::class, 'userPpmpsPage'])->name('userPpmpsPage');
     Route::get('end-user-canvas-form-details/{id}', [EndUserController::class, 'endUserCanvasFormDetails'])->name('endUserCanvasFormDetails');
-    Route::get('end-user-ppmp-details/{id}', [EndUserController::class, 'endUserPPMPDetails'])->name('endUserPPMPDetails');
+    Route::get('end-user-ppmp-details/{hashid}', [EndUserController::class, 'endUserPPMPDetails'])->name('endUserPPMPDetails');
     Route::post('end-user-submit-ppmp', [EndUserController::class, 'endUserSubmitPPMPTemplate'])->name('endUserSubmitPPMPTemplate');
 
-    Route::get('end-user-purchase-request-details/{id}', [EndUserController::class, 'endUserPRDetails'])->name('endUserPRDetails');
+    Route::get('end-user-purchase-request-details/{hashid}', [EndUserController::class, 'endUserPRDetails'])->name('endUserPRDetails');
 
 
 
@@ -230,4 +233,5 @@ Route::middleware('auth', CheckRole::class . ':4')->group(function () {
     // PR MANAGEMENT
     Route::get('end-user-fetch-pr', [PurchaseRequestController::class, 'endUserFetchPurchaseRequests'])->name('endUserFetchPurchaseRequests');
     Route::post('end-user-create-new-pr', [PurchaseRequestController::class, 'endUserCreateNewPR'])->name('endUserCreateNewPR');
+    Route::post('end-user-submit-pr', [EndUserController::class, 'endUserSubmitPurchaseRequest'])->name('endUserSubmitPurchaseRequest');
 });
