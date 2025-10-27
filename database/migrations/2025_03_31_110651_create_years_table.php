@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->year('year');
             $table->boolean('is_current');
+            $table->dateTime('ppmp_deadline')->nullable();
+            $table->dateTime('pr_deadline')->nullable();
             $table->timestamps();
+            $table->boolean('is_open')->default(0);
         });
     }
 

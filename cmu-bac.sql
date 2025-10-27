@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : docker-mysql-server-php81
+ Source Server         : docker-local
  Source Server Type    : MySQL
- Source Server Version : 80041
- Source Host           : 127.0.0.1:33061
+ Source Server Version : 80042
+ Source Host           : localhost:3307
  Source Schema         : cmu-bac
 
  Target Server Type    : MySQL
- Target Server Version : 80041
+ Target Server Version : 80042
  File Encoding         : 65001
 
- Date: 13/04/2025 13:41:03
+ Date: 03/06/2025 13:30:42
 */
 
 SET NAMES utf8mb4;
@@ -107,7 +107,7 @@ CREATE TABLE `budget_allocations`  (
   CONSTRAINT `budget_allocations_allocated_by_foreign` FOREIGN KEY (`allocated_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `budget_allocations_college_office_unit_id_foreign` FOREIGN KEY (`college_office_unit_id`) REFERENCES `college_office_units` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `budget_allocations_whole_budget_id_foreign` FOREIGN KEY (`whole_budget_id`) REFERENCES `whole_budgets` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of budget_allocations
@@ -125,6 +125,9 @@ INSERT INTO `budget_allocations` VALUES (11, 22, 10, 500000, 3, 6, '2025-04-02 1
 INSERT INTO `budget_allocations` VALUES (12, 22, 10, 900000, 3, 6, '2025-04-02 10:40:29', '2025-04-02 02:40:29', '2025-04-02 02:40:29');
 INSERT INTO `budget_allocations` VALUES (13, 5, 18, 500000, 3, 6, '2025-04-03 16:21:04', '2025-04-03 08:21:04', '2025-04-03 08:21:04');
 INSERT INTO `budget_allocations` VALUES (14, 5, 18, 1500000, 3, 5, '2025-04-03 16:53:13', '2025-04-03 08:53:13', '2025-04-03 08:53:13');
+INSERT INTO `budget_allocations` VALUES (17, 2, 10, 5000000, 3, 5, '2025-05-20 10:04:44', '2025-05-20 10:04:44', '2025-05-20 10:04:44');
+INSERT INTO `budget_allocations` VALUES (18, 10, 10, 2500000, 3, 6, '2025-05-20 10:08:36', '2025-05-20 10:08:36', '2025-05-20 10:08:36');
+INSERT INTO `budget_allocations` VALUES (19, 2, 19, 25000, 3, 5, '2025-05-20 13:23:39', '2025-05-20 13:23:39', '2025-05-20 13:23:39');
 
 -- ----------------------------
 -- Table structure for cache
@@ -359,7 +362,7 @@ CREATE TABLE `item_prices`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `item_prices_item_id_foreign`(`item_id` ASC) USING BTREE,
   CONSTRAINT `item_prices_item_id_foreign` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 263 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 264 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of item_prices
@@ -633,7 +636,7 @@ CREATE TABLE `items`  (
   CONSTRAINT `items_added_by_foreign` FOREIGN KEY (`added_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `items_approved_by_foreign` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `items_item_category_id_foreign` FOREIGN KEY (`item_category_id`) REFERENCES `item_categories` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 389 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 390 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of items
@@ -1061,7 +1064,7 @@ CREATE TABLE `migrations`  (
   `migration` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 37 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 38 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of migrations
@@ -1125,15 +1128,6 @@ CREATE TABLE `p_p_m_p_comments`  (
 -- ----------------------------
 -- Records of p_p_m_p_comments
 -- ----------------------------
-INSERT INTO `p_p_m_p_comments` VALUES (6, 31, 'Di nani ma dawat kay late na', 3, '2025-03-03 10:54:47', '2025-03-03 10:54:47');
-INSERT INTO `p_p_m_p_comments` VALUES (7, 31, 'Ngeh!', 5, '2025-03-03 11:04:04', '2025-03-03 11:04:04');
-INSERT INTO `p_p_m_p_comments` VALUES (8, 31, 'boang', 3, '2025-03-03 11:12:12', '2025-03-03 11:12:12');
-INSERT INTO `p_p_m_p_comments` VALUES (9, 33, 'Sample', 3, '2025-03-04 17:04:46', '2025-03-04 17:04:46');
-INSERT INTO `p_p_m_p_comments` VALUES (10, 31, 'test', 5, '2025-03-10 13:37:33', '2025-03-10 13:37:33');
-INSERT INTO `p_p_m_p_comments` VALUES (11, 35, 'Di kaya sa budget', 3, '2025-03-12 13:55:52', '2025-03-12 13:55:52');
-INSERT INTO `p_p_m_p_comments` VALUES (12, 35, 'AH mao ba', 5, '2025-03-12 13:56:15', '2025-03-12 13:56:15');
-INSERT INTO `p_p_m_p_comments` VALUES (13, 43, 'Taronga please', 3, '2025-04-03 08:29:54', '2025-04-03 08:29:54');
-INSERT INTO `p_p_m_p_comments` VALUES (14, 43, 'Oki myloves <3', 7, '2025-04-03 08:30:14', '2025-04-03 08:30:14');
 
 -- ----------------------------
 -- Table structure for p_p_m_p_items
@@ -1162,25 +1156,16 @@ CREATE TABLE `p_p_m_p_items`  (
   INDEX `p_p_m_p_items_item_id_foreign`(`item_id` ASC) USING BTREE,
   CONSTRAINT `p_p_m_p_items_item_id_foreign` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `p_p_m_p_items_ppmp_id_foreign` FOREIGN KEY (`ppmp_id`) REFERENCES `p_p_m_p_s` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 38 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 46 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of p_p_m_p_items
 -- ----------------------------
-INSERT INTO `p_p_m_p_items` VALUES (24, 31, 4, 2, 1, 3, 2, 1, 3, 1, 2, 3, 2, 3, 1, '2025-02-27 06:01:02', '2025-02-27 06:01:02');
-INSERT INTO `p_p_m_p_items` VALUES (25, 33, 27, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, '2025-02-27 06:10:44', '2025-02-27 06:10:44');
-INSERT INTO `p_p_m_p_items` VALUES (26, 34, 101, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, '2025-02-27 06:20:54', '2025-02-27 06:20:54');
-INSERT INTO `p_p_m_p_items` VALUES (27, 31, 33, 1, 1, 1, 1, 1, 1, 1, 1, 11, 0, 11, 0, '2025-03-03 02:48:22', '2025-03-03 02:48:22');
-INSERT INTO `p_p_m_p_items` VALUES (28, 31, 114, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, '2025-03-03 02:48:34', '2025-03-03 02:48:34');
-INSERT INTO `p_p_m_p_items` VALUES (29, 31, 3, 1, 1, 1, 1, 1, 11, 1, 0, 0, 0, 0, 0, '2025-03-04 16:27:58', '2025-03-04 16:27:58');
-INSERT INTO `p_p_m_p_items` VALUES (30, 35, 176, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, '2025-03-04 16:34:17', '2025-03-04 16:34:17');
-INSERT INTO `p_p_m_p_items` VALUES (31, 31, 378, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2025-03-10 13:48:03', '2025-03-10 13:48:03');
-INSERT INTO `p_p_m_p_items` VALUES (33, 36, 384, 0, 0, 0, 1, 0, 2, 1, 0, 0, 0, 0, 0, '2025-03-11 13:46:11', '2025-03-11 13:46:11');
-INSERT INTO `p_p_m_p_items` VALUES (34, 37, 98, 0, 0, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, '2025-03-12 13:30:43', '2025-03-12 13:30:43');
-INSERT INTO `p_p_m_p_items` VALUES (35, 38, 387, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, '2025-03-12 13:53:33', '2025-03-12 13:53:33');
-INSERT INTO `p_p_m_p_items` VALUES (36, 43, 116, 50, 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 0, '2025-04-03 08:25:20', '2025-04-03 08:26:00');
-INSERT INTO `p_p_m_p_items` VALUES (37, 43, 135, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, '2025-04-03 08:27:25', '2025-04-03 08:27:25');
-INSERT INTO `p_p_m_p_items` VALUES (38, 46, 389, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, '2025-04-03 08:53:59', '2025-04-03 08:53:59');
+INSERT INTO `p_p_m_p_items` VALUES (41, 53, 6, 0, 0, 0, 0, 0, 12, 12, 12, 12, 12, 12, 12, '2025-05-02 05:50:03', '2025-05-02 05:50:03');
+INSERT INTO `p_p_m_p_items` VALUES (42, 53, 135, 0, 0, 0, 0, 0, 25, 25, 25, 25, 0, 0, 0, '2025-05-02 05:50:21', '2025-05-02 05:50:21');
+INSERT INTO `p_p_m_p_items` VALUES (43, 54, 389, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, '2025-05-20 10:06:28', '2025-05-20 10:06:28');
+INSERT INTO `p_p_m_p_items` VALUES (44, 55, 116, 0, 0, 0, 0, 0, 2, 0, 5, 12, 12, 12, 12, '2025-05-20 10:08:53', '2025-05-20 10:08:53');
+INSERT INTO `p_p_m_p_items` VALUES (45, 58, 389, 0, 0, 0, 0, 0, 0, 6, 0, 6, 0, 0, 0, '2025-05-20 13:25:06', '2025-05-20 13:25:06');
 
 -- ----------------------------
 -- Table structure for p_p_m_p_s
@@ -1201,25 +1186,17 @@ CREATE TABLE `p_p_m_p_s`  (
   INDEX `p_p_m_p_s_created_by_foreign`(`created_by` ASC) USING BTREE,
   CONSTRAINT `p_p_m_p_s_budget_allocation_id_foreign` FOREIGN KEY (`budget_allocation_id`) REFERENCES `budget_allocations` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `p_p_m_p_s_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 46 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 60 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of p_p_m_p_s
 -- ----------------------------
-INSERT INTO `p_p_m_p_s` VALUES (31, 1, 5, 'CISC-OSE-022025-1', 1, 1, 1, '2025-02-27 06:00:47', '2025-03-10 13:51:39');
-INSERT INTO `p_p_m_p_s` VALUES (32, 2, 5, 'CISC-IOS-022025-2', 0, 0, 2, '2025-02-27 06:09:34', '2025-02-27 06:09:34');
-INSERT INTO `p_p_m_p_s` VALUES (33, 4, 6, 'OUA-OSE-022025-1', 1, 2, 1, '2025-02-27 06:10:34', '2025-03-03 02:27:36');
-INSERT INTO `p_p_m_p_s` VALUES (34, 4, 6, 'OUA-OSE-022025-2', 1, 0, 2, '2025-02-27 06:20:42', '2025-02-27 06:20:57');
-INSERT INTO `p_p_m_p_s` VALUES (35, 5, 5, 'CISC-OSE-032025-3', 1, 1, 3, '2025-03-04 16:33:59', '2025-03-12 14:02:45');
-INSERT INTO `p_p_m_p_s` VALUES (36, 7, 5, 'CISC-OSE-032025-4', 0, 0, 4, '2025-03-04 17:06:06', '2025-03-04 17:06:06');
-INSERT INTO `p_p_m_p_s` VALUES (37, 8, 5, 'CISC-OSE-032025-5', 0, 0, 5, '2025-03-12 13:26:27', '2025-03-12 13:26:27');
-INSERT INTO `p_p_m_p_s` VALUES (38, 10, 5, 'CISC-SFFABE-032025-6', 0, 0, 6, '2025-03-12 13:53:10', '2025-03-12 13:53:10');
-INSERT INTO `p_p_m_p_s` VALUES (39, 1, 5, 'CISC-OSE-032025-7', 0, 0, 7, '2025-03-22 15:45:56', '2025-03-22 15:45:56');
-INSERT INTO `p_p_m_p_s` VALUES (40, 4, 6, 'OUA-OSE-032025-3', 0, 0, 3, '2025-03-22 15:48:14', '2025-03-22 15:48:14');
-INSERT INTO `p_p_m_p_s` VALUES (43, 13, 7, 'CON-OSE-042025-1', 1, 1, 1, '2025-04-03 08:22:36', '2025-04-10 02:40:16');
-INSERT INTO `p_p_m_p_s` VALUES (44, 13, 7, 'CON-OSE-042025-2', 0, 0, 2, '2025-04-03 08:33:05', '2025-04-03 08:33:05');
-INSERT INTO `p_p_m_p_s` VALUES (45, 13, 7, 'CON-OSE-042025-3', 0, 0, 3, '2025-04-03 08:52:19', '2025-04-03 08:52:19');
-INSERT INTO `p_p_m_p_s` VALUES (46, 14, 7, 'CON-IOS-042025-4', 0, 0, 4, '2025-04-03 08:53:36', '2025-04-03 08:53:36');
+INSERT INTO `p_p_m_p_s` VALUES (53, 8, 5, 'CISC-OSE-052025-1', 1, 0, 1, '2025-05-02 05:14:18', '2025-05-20 10:09:13');
+INSERT INTO `p_p_m_p_s` VALUES (54, 17, 5, 'CISC-IOS-052025-2', 1, 0, 2, '2025-05-20 10:05:15', '2025-05-22 11:01:02');
+INSERT INTO `p_p_m_p_s` VALUES (55, 18, 6, 'OUA-OSE-052025-1', 1, 0, 1, '2025-05-20 10:08:41', '2025-05-20 10:08:56');
+INSERT INTO `p_p_m_p_s` VALUES (58, 19, 5, 'CISC-IOS-052025-5', 1, 0, 5, '2025-05-20 13:24:03', '2025-05-20 13:26:16');
+INSERT INTO `p_p_m_p_s` VALUES (59, 9, 5, 'CISC-OSE-052025-6', 0, 0, 6, '2025-05-22 11:02:10', '2025-05-22 11:02:10');
+INSERT INTO `p_p_m_p_s` VALUES (60, 17, 5, 'CISC-IOS-062025-7', 0, 0, 7, '2025-06-02 03:20:05', '2025-06-02 03:20:05');
 
 -- ----------------------------
 -- Table structure for password_reset_tokens
@@ -1323,18 +1300,13 @@ CREATE TABLE `purchase_request_items`  (
   INDEX `purchase_request_items_item_id_foreign`(`item_id` ASC) USING BTREE,
   CONSTRAINT `purchase_request_items_item_id_foreign` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `purchase_request_items_purchase_request_id_foreign` FOREIGN KEY (`purchase_request_id`) REFERENCES `purchase_requests` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of purchase_request_items
 -- ----------------------------
-INSERT INTO `purchase_request_items` VALUES (1, 10, 4, 0, 2, 1, 3, 2, 1, 3, 1, 2, 3, 2, 3, 1, '2025-03-24 10:22:47', '2025-03-24 10:22:47');
-INSERT INTO `purchase_request_items` VALUES (2, 10, 33, 0, 1, 1, 1, 1, 1, 1, 1, 1, 11, 0, 11, 0, '2025-03-24 10:22:47', '2025-03-24 10:22:47');
-INSERT INTO `purchase_request_items` VALUES (3, 10, 114, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, '2025-03-24 10:22:47', '2025-03-24 10:22:47');
-INSERT INTO `purchase_request_items` VALUES (4, 10, 3, 0, 1, 1, 1, 1, 1, 11, 1, 0, 0, 0, 0, 0, '2025-03-24 10:22:47', '2025-03-24 10:22:47');
-INSERT INTO `purchase_request_items` VALUES (5, 10, 378, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2025-03-24 10:22:47', '2025-03-24 10:22:47');
-INSERT INTO `purchase_request_items` VALUES (6, 11, 116, 0, 50, 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 0, '2025-04-03 08:33:54', '2025-04-03 08:33:54');
-INSERT INTO `purchase_request_items` VALUES (7, 11, 135, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, '2025-04-03 08:33:54', '2025-04-03 08:33:54');
+INSERT INTO `purchase_request_items` VALUES (18, 17, 6, 0, 0, 0, 0, 0, 0, 12, 12, 12, 12, 12, 12, 12, '2025-05-02 06:25:57', '2025-05-26 11:09:52');
+INSERT INTO `purchase_request_items` VALUES (19, 17, 135, 1, 0, 0, 0, 0, 0, 25, 25, 25, 25, 0, 0, 0, '2025-05-02 06:25:57', '2025-05-05 03:05:29');
 
 -- ----------------------------
 -- Table structure for purchase_requests
@@ -1361,13 +1333,12 @@ CREATE TABLE `purchase_requests`  (
   CONSTRAINT `purchase_requests_colleg_office_unit_id_foreign` FOREIGN KEY (`college_office_unit_id`) REFERENCES `college_office_units` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `purchase_requests_ppmp_id_foreign` FOREIGN KEY (`ppmp_id`) REFERENCES `p_p_m_p_s` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `purchase_requests_prepared_by_foreign` FOREIGN KEY (`prepared_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of purchase_requests
 -- ----------------------------
-INSERT INTO `purchase_requests` VALUES (10, 'CISC-PR-032025-1', 31, 'Sample Only', 1, NULL, 0, NULL, 5, 2, '2025-03-24 10:22:47', '2025-03-24 10:22:47', 1);
-INSERT INTO `purchase_requests` VALUES (11, 'CON-PR-042025-1', 43, 'Supplies', 0, NULL, 0, NULL, 7, 5, '2025-04-03 08:33:54', '2025-04-03 08:33:54', 1);
+INSERT INTO `purchase_requests` VALUES (17, 'CISC-PR-052025-1', 53, 'Item Stock', 1, '2025-05-05 11:37:59', 0, NULL, 5, 2, '2025-05-02 06:25:57', '2025-05-05 03:37:59', 1);
 
 -- ----------------------------
 -- Table structure for requested_item_attachments
@@ -1386,7 +1357,7 @@ CREATE TABLE `requested_item_attachments`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `requested_item_attachments_requested_item_id_foreign`(`requested_item_id` ASC) USING BTREE,
   CONSTRAINT `requested_item_attachments_requested_item_id_foreign` FOREIGN KEY (`requested_item_id`) REFERENCES `requested_items` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 30 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of requested_item_attachments
@@ -1429,7 +1400,7 @@ CREATE TABLE `requested_items`  (
   INDEX `requested_items_created_by_foreign`(`created_by` ASC) USING BTREE,
   CONSTRAINT `requested_items_college_office_unit_id_foreign` FOREIGN KEY (`college_office_unit_id`) REFERENCES `college_office_units` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `requested_items_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of requested_items
@@ -1493,7 +1464,7 @@ CREATE TABLE `signatories`  (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of signatories
@@ -1545,6 +1516,7 @@ CREATE TABLE `user_privileges`  (
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users`  (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `employee_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `firstname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `middlename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `lastname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1566,18 +1538,18 @@ CREATE TABLE `users`  (
   INDEX `users_role_id_foreign`(`role_id` ASC) USING BTREE,
   CONSTRAINT `users_college_office_unit_id_foreign` FOREIGN KEY (`college_office_unit_id`) REFERENCES `college_office_units` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `users_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of users
 -- ----------------------------
-INSERT INTO `users` VALUES (1, 'Allen Keith', 'Anib', 'Aradillos', '', '1', '9096743922', 'admin@gmail.com', 1, 1, 1, '2025-01-15 14:53:23', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', '', NULL, NULL);
-INSERT INTO `users` VALUES (2, 'Weljo Chesedh', 'P', 'Libnao', '', '1', '9123456789', 'bac@gmail.com', 27, 2, 1, '2025-01-15 14:53:21', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', '', NULL, NULL);
-INSERT INTO `users` VALUES (3, 'Jeovannie', 'C', 'Manhulad', '', '1', '9123456789', 'budget@gmail.com', 25, 3, 1, '2025-01-15 14:53:19', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', '', NULL, NULL);
-INSERT INTO `users` VALUES (4, 'Lorie', 'M', 'Cagalitan', '', '1', '9123456789', 'sdd@gmail.com', 20, 4, 1, '2025-01-15 14:53:16', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', '', NULL, NULL);
-INSERT INTO `users` VALUES (5, 'Krshnon Kyle', 'A', 'Padilla', '', '1', '9123456789', 'cisc@gmail.com', 2, 4, 1, '2025-01-15 14:53:16', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', NULL, NULL, NULL);
-INSERT INTO `users` VALUES (6, 'Yudi', 'S', 'Tubungbanua', NULL, '0', '09654235185', 'accounting@gmail.com', 10, 4, 1, '2025-01-15 14:53:16', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', NULL, NULL, NULL);
-INSERT INTO `users` VALUES (7, 'Myloves', 'A', 'Nurse', NULL, '0', '09123456789', 'con@gmail.com', 5, 4, 1, '2025-04-03 16:19:20', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', NULL, NULL, NULL);
+INSERT INTO `users` VALUES (1, 'CMU-2025-05', 'Allen Keith', 'Anib', 'Aradillos', '', '1', '9096743922', 'admin@gmail.com', 1, 1, 1, '2025-01-15 14:53:23', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', '', NULL, NULL);
+INSERT INTO `users` VALUES (2, 'CMU-2025-05', 'Weljo Chesedh', 'P', 'Libnao', '', '1', '9123456789', 'bac@gmail.com', 27, 2, 1, '2025-01-15 14:53:21', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', '', NULL, NULL);
+INSERT INTO `users` VALUES (3, 'CMU-2025-05', 'Jeovannie', 'C', 'Manhulad', '', '1', '9123456789', 'budget@gmail.com', 25, 3, 1, '2025-01-15 14:53:19', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', '', NULL, NULL);
+INSERT INTO `users` VALUES (4, 'CMU-2025-05', 'Lorie', 'M', 'Cagalitan', '', '1', '9123456789', 'sdd@gmail.com', 20, 4, 1, '2025-01-15 14:53:16', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', '', NULL, NULL);
+INSERT INTO `users` VALUES (5, 'CMU-2025-05', 'Krshnon Kyle', 'A', 'Padilla', '', '1', '9123456789', 'cisc@gmail.com', 2, 4, 1, '2025-01-15 14:53:16', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', NULL, NULL, NULL);
+INSERT INTO `users` VALUES (6, 'CMU-2025-05', 'Yudi', 'S', 'Tubungbanua', NULL, '0', '09654235185', 'accounting@gmail.com', 10, 4, 1, '2025-01-15 14:53:16', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', NULL, NULL, NULL);
+INSERT INTO `users` VALUES (7, 'CMU-2025-05', 'Myloves', 'A', 'Nurse', NULL, '0', '09123456789', 'con@gmail.com', 5, 4, 1, '2025-04-03 16:19:20', '$2y$12$R.HzwLdWEA99oN8/OK.AJ.7XX.i3EnVfvedNbzG49AkWxIPTljQB2', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for whole_budgets
@@ -1592,7 +1564,7 @@ CREATE TABLE `whole_budgets`  (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of whole_budgets
@@ -1608,6 +1580,7 @@ INSERT INTO `whole_budgets` VALUES (14, 2500000, 2025, 'Trust Fund', 'Main', '20
 INSERT INTO `whole_budgets` VALUES (15, 5000000, 2026, 'General Fund', 'Main', '2025-03-12 13:15:52', '2025-03-12 13:15:52');
 INSERT INTO `whole_budgets` VALUES (16, 5000000, 2026, 'Special Trust Fund', 'Main', '2025-03-12 13:24:00', '2025-03-12 13:24:00');
 INSERT INTO `whole_budgets` VALUES (18, 100000000, 2026, 'General Fund', 'Main', '2025-04-03 08:16:30', '2025-04-03 08:16:30');
+INSERT INTO `whole_budgets` VALUES (19, 50000, 2025, 'General Fund', 'Supplimentary', '2025-05-20 13:22:29', '2025-05-20 13:22:29');
 
 -- ----------------------------
 -- Table structure for years
@@ -1617,16 +1590,19 @@ CREATE TABLE `years`  (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `year` year NOT NULL,
   `is_current` tinyint(1) NOT NULL,
+  `ppmp_deadline` datetime NULL DEFAULT NULL,
+  `pr_deadline` datetime NULL DEFAULT NULL,
+  `is_open` bit(1) NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of years
 -- ----------------------------
-INSERT INTO `years` VALUES (1, 2025, 0, NULL, '2025-04-03 08:11:53');
-INSERT INTO `years` VALUES (2, 2026, 1, NULL, '2025-04-03 08:11:53');
-INSERT INTO `years` VALUES (3, 2027, 0, '2025-04-02 02:01:08', '2025-04-03 08:11:53');
+INSERT INTO `years` VALUES (1, 2025, 0, '2024-06-16 10:38:00', NULL, b'0', NULL, '2025-04-03 08:11:53');
+INSERT INTO `years` VALUES (2, 2026, 1, '2025-06-16 10:10:00', NULL, b'1', NULL, '2025-04-03 08:11:53');
+INSERT INTO `years` VALUES (3, 2027, 0, '2026-06-16 10:38:00', NULL, b'0', '2025-04-02 02:01:08', '2025-04-03 08:11:53');
 
 SET FOREIGN_KEY_CHECKS = 1;

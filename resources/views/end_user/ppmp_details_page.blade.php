@@ -6,28 +6,42 @@
 
     <div class="container-fluid">
         <div class="col-xl-12 col-lg-12 col-md-12">
+            <div class="row justify-items-center align-items-center">
+                <div class="col-6">
+                    <div class="text-start">
+                        Remaining Budget: <span style="background-color:#FFE497; padding:8px; border-radius:8px"><span
+                                style="font-weight: bold">₱{{ number_format($remainingBudget, 2) }}</span> out of
+                            <span style="font-weight: bold">₱{{ number_format($totalBudget, 2) }}</span></span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-end">
+                        <div class="align-items-center">
+                            <span>Submission Status: </span>
+                            @if ($ppmp->is_submitted == 0)
+                                <span class="badge bg-warning mb-2">Draft</span>
+                            @elseif($ppmp->is_submitted == 1)
+                                <span class="badge bg-success mb-2">Submitted</span>
+                            @endif
+                        </div>
+
+                        <div class="align-items-center">
+                            <span>Approval Status: </span>
+                            @if ($ppmp->approval_status == 0)
+                                <span class="badge bg-warning mb-2">Pending</span>
+                            @elseif ($ppmp->approval_status == 1)
+                                <span class="badge bg-success mb-2">Approved</span>
+                            @elseif ($ppmp->approval_status == 2)
+                                <span class="badge bg-danger mb-2">Disapproved</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="ppmpTemplate px-3" id="ppmpTemplate">
                 <div class="text-center align-items-center mt-2">
-                    @if ($ppmp->is_submitted == 0)
-                        <span class="badge bg-warning mb-2">Draft</span>
-                    @elseif($ppmp->is_submitted == 1)
-                        <span class="badge bg-success mb-2">Submitted</span>
-                    @endif
-
-
                     <h2><strong>PROJECT PROCUREMENT MANAGEMENT PLAN
                             {{ $ppmp->budgetAllocation->wholeBudget->year }}</strong></h2>
-
-
-                    @if ($ppmp->approval_status == 0)
-                        <span class="badge bg-warning mb-2">Pending</span>
-                    @elseif ($ppmp->approval_status == 1)
-                        <span class="badge bg-success mb-2">Approved</span>
-                    @elseif ($ppmp->approval_status == 2)
-                        <span class="badge bg-danger mb-2">Disapproved</span>
-                    @endif
-
-
                 </div>
 
 
@@ -363,8 +377,7 @@
                 <div class="row mt-2">
                     <div class="col-12 col-md-4 text-center mb-4 mb-md-0">
                         <p class="mb-2">Prepared By:</p>
-                        <h4 class="mb-1"><ins>{{ strtoupper(Auth::user()->firstname) }}
-                                {{ strtoupper(Auth::user()->middlename) }}. {{ strtoupper(Auth::user()->lastname) }}</ins>
+                        <h4 class="mb-1"><ins>{{ $ppmp->budgetAllocation->collegeOfficeUnit->signatories()->first()->fullname }}</ins>
                         </h4>
                         <small>Unit Head/College Dean</small>
                     </div>
@@ -496,7 +509,23 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12">
+                                <div class="alert alert-success alert-dismissible" role="alert">
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                    <div class="alert-icon">
+                                        <i class="far fa-fw fa-square-exclamation"></i>
+                                    </div>
+                                    <div class="alert-message">
+                                        <strong>Note!</strong> To see the list of items, <a href="{{ route('endUserItemInventoryPage') }}" target="_blank">Click here.</a>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div class="col-12">
+                                <input type="text" hidden id="formPPMPRemainingBudget" name="formPPMPRemainingBudget"
+                                    value="{{ $remainingBudget }}">
+                            </div>
                             <div class="col-12">
                                 <input type="text" hidden id="formPPMPId" name="formPPMPId"
                                     value="{{ $ppmp->id }}">
@@ -629,6 +658,10 @@
                                                 </tbody>
                                             </table>
                                         </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <input type="text" hidden id="formEditPPMPRemainingBudget"
+                                            name="formEditPPMPRemainingBudget" value="{{ $remainingBudget }}">
                                     </div>
                                     <div class="col-md-6">
                                         <div class="table-responsive">
@@ -868,6 +901,7 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                     ppmpId: $('#formPPMPId').val(),
+                    remainingBudget: $('#formPPMPRemainingBudget').val(),
                     itemId: $('#formSelectItemToPPMP').val(),
                     janMilsQuantity: $('#janMilestoneQuantity').val(),
                     febMilsQuantity: $('#febMilestoneQuantity').val(),
@@ -974,6 +1008,7 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                     PPMPItemId: $('#editPPMPItemId').val(),
+                    remainingBudget: $('#formEditPPMPRemainingBudget').val(),
                     janMilsQuantity: $('#editJanMilestoneQuantity').val(),
                     febMilsQuantity: $('#editFebMilestoneQuantity').val(),
                     marMilsQuantity: $('#editMarMilestoneQuantity').val(),

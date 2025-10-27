@@ -59,6 +59,11 @@
                         <div class="row mb-3">
                             <div class="col-6">
                                 <div class="mb-3">
+                                    <label class="form-label">Employee Number <span style="color: red;">*</span></label>
+                                    <input type="text" class="form-control" id="formAddUserEmployeeNumber"
+                                        name="formAddUserEmployeeNumber" required placeholder="Enter Employee Number">
+                                </div>
+                                <div class="mb-3">
                                     <label class="form-label">First Name <span style="color: red;">*</span></label>
                                     <input type="text" class="form-control" id="formAddUserFirstName"
                                         name="formAddUserFirstName" required placeholder="Enter First Name">
@@ -79,6 +84,9 @@
                                         name="formAddUserExtName" placeholder="Enter Extension Name">
                                 </div>
 
+
+                            </div>
+                            <div class="col-6">
                                 <div class="row">
                                     <div class="col-6 mb-3">
                                         <label class="form-label">Sex <span style="color: red;">*</span></label>
@@ -94,8 +102,6 @@
                                             name="formAddUserContactNumber" placeholder="Enter Contact Number">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-6">
                                 <div class="mb-3">
                                     <label class="form-label">Role <span style="color: red;">*</span></label>
                                     <select name="formAddUserRole" id="formAddUserRole" class="form-select" required>
@@ -146,7 +152,7 @@
         function refreshUserTable() {
             showLoadingIndicator();
             $.ajax({
-                url: "{{ route('fetchUsers') }}",
+                url: "{{ route('adminFetchUsers') }}",
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -157,7 +163,7 @@
                     var table = $('#userTable').DataTable();
                     table.clear();
                     data.forEach(function(user) {
-                        var userDetailButton = `<a href="{{ route('adminUserDetailsPage', '') }}/${user.id}"><button type="button" class="btn btn-sm btn-success me-1" title="View Profile">
+                        var userDetailButton = `<a href="{{ route('adminUserDetailsPage', '') }}/${user.hashid}"><button type="button" class="btn btn-sm btn-success me-1" title="View Profile">
                             <i class="fas fa-user"></i> View Details
                         </button></a>`;
 
@@ -221,6 +227,7 @@
                 type: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
+                    formAddUserEmployeeNumber: $('#formAddUserEmployeeNumber').val(),
                     formAddUserFirstName: $('#formAddUserFirstName').val(),
                     formAddUserMiddleName: $('#formAddUserMiddleName').val(),
                     formAddUserLastName: $('#formAddUserLastName').val(),

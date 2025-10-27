@@ -37,7 +37,7 @@
                         </a>
                         <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#roleAndPrivileges"
                             role="tab" aria-selected="false" tabindex="-1">
-                            Role and Privileges
+                            Assigned Role
                         </a>
 
 
@@ -175,76 +175,23 @@
                     <div class="tab-pane fade" id="roleAndPrivileges" role="tabpanel">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Role and Privileges</h5>
+                                <h5 class="card-title">Assigned Role</h5>
                                 <form id="privilegeForm">
                                     @csrf
                                     <input type="hidden" name="user_id" value="{{ $user->id }}">
 
                                     <div class="mb-3">
                                         <label class="form-label">Role</label>
-                                        <select class="form-select" name="role_id" disabled>
-                                            <option value="{{ $user->role->id }}">{{ $user->role->role_name }}</option>
+                                        <select class="form-select" name="role_id" id="role_id">
+                                            <option value="{{ $user->role->id }}" selected>{{ $user->role->role_name }}
+                                            </option>
+                                            @foreach ($roles as $role)
+                                                <option value="{{ $role->id }}">{{ $role->role_name }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label">Privileges</label>
-                                        <div class="row">
-                                            @php
-                                                function hasPrivilege($user, $privilegeName)
-                                                {
-                                                    return $user->privileges->contains(
-                                                        'privilege_name',
-                                                        $privilegeName,
-                                                    );
-                                                }
-                                            @endphp
 
-                                            <div class="col-md-6 mb-2">
-                                                <label class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="privileges[]"
-                                                        value="retrieve"
-                                                        {{ hasPrivilege($user, 'retrieve') ? 'checked' : '' }}>
-                                                    <span class="form-check-label">
-                                                        Retrieve
-                                                    </span>
-                                                </label>
-                                            </div>
-
-                                            <div class="col-md-6 mb-2">
-                                                <label class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="privileges[]"
-                                                        value="create"
-                                                        {{ hasPrivilege($user, 'create') ? 'checked' : '' }}>
-                                                    <span class="form-check-label">
-                                                        Create
-                                                    </span>
-                                                </label>
-                                            </div>
-
-                                            <div class="col-md-6 mb-2">
-                                                <label class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="privileges[]"
-                                                        value="update"
-                                                        {{ hasPrivilege($user, 'update') ? 'checked' : '' }}>
-                                                    <span class="form-check-label">
-                                                        Update
-                                                    </span>
-                                                </label>
-                                            </div>
-
-                                            <div class="col-md-6 mb-2">
-                                                <label class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="privileges[]"
-                                                        value="delete"
-                                                        {{ hasPrivilege($user, 'delete') ? 'checked' : '' }}>
-                                                    <span class="form-check-label">
-                                                        Delete
-                                                    </span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
 
                                     <button type="submit" class="btn btn-success">
                                         <i class="fas fa-save me-1"></i> Save Changes
@@ -354,18 +301,14 @@
         $('#privilegeForm').on('submit', function(e) {
             e.preventDefault();
 
-            let checkedPrivileges = [];
-            $('input[name="privileges[]"]:checked').each(function() {
-                checkedPrivileges.push($(this).val());
-            });
 
             $.ajax({
-                url: "{{ route('updateUserPrivileges') }}",
+                url: "{{ route('updateUserRole') }}",
                 type: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
                     user_id: {{ $user->id }},
-                    privileges: checkedPrivileges
+                    user_role: $('#role_id').val()
                 },
                 success: function(response) {
                     Swal.fire({

@@ -65,7 +65,7 @@ Route::middleware('auth', CheckRole::class . ':1')->group(function () {
     Route::get('admin-items', [AdminController::class, 'adminItemsPage'])->name('adminItemsPage');
     Route::get('admin-account-codes', [AdminController::class, 'adminAccountCodesPage'])->name('adminAccountCodesPage');
     Route::get('admin-user-management', [AdminController::class, 'adminUserManagementPage'])->name('adminUserManagementPage');
-    Route::get('admin-user-details/{id}', [AdminController::class, 'adminUserDetailsPage'])->name('adminUserDetailsPage');
+    Route::get('admin-user-details/{hashid}', [AdminController::class, 'adminUserDetailsPage'])->name('adminUserDetailsPage');
     Route::get('admin-settings', [AdminController::class, 'adminSettingsPage'])->name('adminSettingsPage');
 
     // MANAGING DATA OF COLLEGE OFFICE UNITS
@@ -75,13 +75,13 @@ Route::middleware('auth', CheckRole::class . ':1')->group(function () {
     Route::post('admin-delete-college-office-unit', [CollegeOfficeUnitController::class, 'deleteCollegeOfficeUnit'])->name('deleteCollegeOfficeUnit');
 
     // MANAGING DATA OF ITEM CATEGORIES
-    Route::post('admin-fetch-item-categories', [ItemCategoryController::class, 'fetchItemCategories'])->name('fetchItemCategories');
+    Route::post('admin-fetch-item-categories', [ItemCategoryController::class, 'fetchItemCategories'])->name('adminFetchItemCategories');
     Route::post('admin-add-item-category', [ItemCategoryController::class, 'addItemCategory'])->name('addItemCategory');
     Route::post('admin-update-item-category', [ItemCategoryController::class, 'updateItemCategory'])->name('updateItemCategory');
     Route::post('admin-delete-item-category', [ItemCategoryController::class, 'deleteItemCategory'])->name('deleteItemCategory');
 
     // MANAGING DATA OF ITEMS
-    Route::post('admin-fetch-items', [ItemController::class, 'fetchItems'])->name('fetchItems');
+    Route::post('admin-fetch-items', [ItemController::class, 'fetchItems'])->name('adminFetchItems');
     Route::post('admin-add-item', [ItemController::class, 'addItem'])->name('addItem');
     Route::post('admin-update-item', [ItemController::class, 'updateItem'])->name('updateItem');
     Route::post('admin-delete-item', [ItemController::class, 'deleteItem'])->name('deleteItem');
@@ -93,11 +93,11 @@ Route::middleware('auth', CheckRole::class . ':1')->group(function () {
     Route::post('admin-delete-account-code', [AccountCodeController::class, 'deleteAccountCode'])->name('adminDeleteAccountCode');
 
     // MANAGING OF DATA OF USERS AND ITS ROLES AND PRIVILEGES
-    Route::post('admin-fetch-users', [UserController::class, 'fetchUsers'])->name('fetchUsers');
+    Route::post('admin-fetch-users', [UserController::class, 'fetchAllUsers'])->name('adminFetchUsers');
     Route::post('admin-add-user', [UserController::class, 'addUser'])->name('addUser');
     Route::post('admin-update-user', [UserController::class, 'updateUser'])->name('updateUser');
     Route::post('admin-delete-user', [UserController::class, 'deleteUser'])->name('deleteUser');
-    Route::post('admin-update-user-privileges', [UserController::class, 'updateUserPrivileges'])->name('updateUserPrivileges');
+    Route::post('admin-update-user-role', [UserController::class, 'updateUserRole'])->name('updateUserRole');
     Route::post('admin-update-user-personal-information', [UserController::class, 'updateUserPersonalInformation'])->name('updateUserPersonalInformation');
     Route::post('admin-update-user-account', [UserController::class, 'updateUserAccount'])->name('updateUserAccount');
 
@@ -126,7 +126,7 @@ Route::middleware('auth', CheckRole::class . ':2')->group(function () {
     Route::post('bac-delete-item-category', [ItemCategoryController::class, 'deleteItemCategory'])->name('deleteItemCategory');
 
     // BAC ITEM MANAGEMENT
-    Route::post('bac-fetch-items', [ItemController::class, 'fetchItems'])->name('fetchItems');
+    Route::get('bac-fetch-items', [ItemController::class, 'fetchItems'])->name('bacFetchItems');
     Route::post('bac-add-item', [ItemController::class, 'addItem'])->name('addItem');
     Route::post('bac-update-item', [ItemController::class, 'updateItem'])->name('updateItem');
     Route::post('bac-delete-item', [ItemController::class, 'deleteItem'])->name('deleteItem');
@@ -137,8 +137,15 @@ Route::middleware('auth', CheckRole::class . ':2')->group(function () {
     Route::post('bac-add-new-item-from-request', [ItemController::class, 'addNewItemFromRequest'])->name('addNewItemFromRequest');
 
     // BAC PPMP MANAGEMENT
-    Route::post('bac-fetch-ppmps', [BACController::class, 'bacFetchPPMPs'])->name('bacFetchPPMPs');
-    Route::get('bac-view-ppmp-details/{id}', [BACController::class, 'bacViewPPMPDetails'])->name('bacViewPPMPDetails');
+    Route::get('bac-fetch-ppmps', [BACController::class, 'bacFetchPPMPs'])->name('bacFetchPPMPs');
+    Route::get('bac-view-ppmp-details/{hashid}', [BACController::class, 'bacViewPPMPDetails'])->name('bacViewPPMPDetails');
+
+    Route::post('bac-office-fetch-purchase-requests', [PurchaseRequestController::class, 'bacOfficeFetchPurchaseRequests'])->name('bacOfficeFetchPurchaseRequests');
+    Route::get('bac-office-purchase-request-details/{hashid}', [BACController::class, 'bacViewPRDetails'])->name('bacViewPRDetails');
+    Route::post("bac-office-update-pr-item-status", [PurchaseRequestItemController::class, 'bacUpdatePRItemStatus'])->name('bacUpdatePRItemStatus');
+
+    Route::get('bac-office-view-app-report/{year}', [BACController::class, 'bacOfficeExportAPP'])->name('bacOfficeExportAPP');
+    Route::get('bac-office-view-app-cse-report/{year}', [BACController::class, 'bacOfficeExportAPPCSE'])->name('bacOfficeExportAPPCSE');
 });
 
 // BUDGET
@@ -151,7 +158,12 @@ Route::middleware('auth', CheckRole::class . ':3')->group(function () {
     Route::get('budget-view-ppmp-details/{hashid}', [BudgetController::class, 'budgetViewPPMPDetails'])->name('budgetViewPPMPDetails');
     Route::get('budget-office-purchase-requests-page', [BudgetController::class, 'budgetOfficePurchaseRequestsPage'])->name('budgetOfficePurchaseRequestsPage');
     Route::get('budget-office-purchase-requests-details/{hashid}', [BudgetController::class, 'budgetOfficePurchaseRequestDetails'])->name('budgetOfficePurchaseRequestDetails');
+    Route::get('budget-office-apps-page', [BudgetController::class, 'budgetOfficeAPPsPage'])->name('budgetOfficeAPPsPage');
+    Route::get('budget-office-aprs-page', [BudgetController::class, 'budgetOfficeAPRsPage'])->name('budgetOfficeAPRsPage');
 
+    // Exports 
+    Route::get('budget-office-view-app-report/{year}', [BudgetController::class, 'budgetOfficeExportAPP'])->name('budgetOfficeExportAPP');
+    Route::get('budget-office-view-apr-report/{year}', [BudgetController::class, 'budgetOfficeExportAPR'])->name('budgetOfficeExportAPR');
 
     // Managing the whole budget
     Route::post('budget-office-fetch-whole-budget', [WholeBudgetController::class, 'fetchYearlyBudget'])->name('fetchYearlyBudget');
@@ -185,13 +197,14 @@ Route::middleware('auth', CheckRole::class . ':3')->group(function () {
 
     // BUDGET OFFICE MANAGEMENT OF PURCHASE REQUESTS
     Route::get('budget-office-fetch-purchase-requests', [PurchaseRequestController::class, 'budgetOfficeFetchPurchaseRequests'])->name('budgetOfficeFetchPurchaseRequests');
-    Route::post('end-user-update-pr-item', [PurchaseRequestItemController::class, 'endUserUpdatePRItem'])->name('endUserUpdatePRItem');
+    Route::post('budget-office-update-pr-item-status', [PurchaseRequestItemController::class, 'budgetOfficeUpdatePRItem'])->name('budgetOfficeUpdatePRItem');
 });
 
 // USER
 Route::middleware('auth', CheckRole::class . ':4')->group(function () {
     Route::get('user-dashboard', [EndUserController::class, 'userDashboard'])->name('userDashboard');
     Route::get('user-budgets-page', [EndUserController::class, 'userBudgetsPage'])->name('userBudgetsPage');
+    Route::get('end-user-item-inventory-page', [EndUserController::class, 'endUserItemInventoryPage'])->name('endUserItemInventoryPage');
     Route::get('user-request-items-page', [EndUserController::class, 'userRequestItemsPage'])->name('userRequestItemsPage');
     Route::get('user-ppmps-page', [EndUserController::class, 'userPpmpsPage'])->name('userPpmpsPage');
     Route::get('end-user-canvas-form-details/{id}', [EndUserController::class, 'endUserCanvasFormDetails'])->name('endUserCanvasFormDetails');
@@ -200,7 +213,7 @@ Route::middleware('auth', CheckRole::class . ':4')->group(function () {
 
     Route::get('end-user-purchase-request-details/{hashid}', [EndUserController::class, 'endUserPRDetails'])->name('endUserPRDetails');
 
-
+    Route::post('end-user-fetch-items', [EndUserController::class, 'fetchItems'])->name('fetchItems');
 
     Route::get('user-pr-page', [EndUserController::class, 'userPrPage'])->name('userPrPage');
     Route::get('user-po-page', [EndUserController::class, 'userPoPage'])->name('userPoPage');

@@ -5,10 +5,28 @@
 @section('content')
     <div class="container-fluid p-0">
 
-        <div class="row mb-2 mb-xl-3">
-            <div class="col-auto d-none d-sm-block">
-                <h3>Project Procurement Management Plans</h3>
+        <div class="row mb-2 mb-xl-3 align-items-center">
+            <div class="col-auto">
+                <h3 class="mb-0">Project Procurement Management Plan</h3>
             </div>
+
+            <div class="col-auto ms-auto">
+                <div class="d-flex align-items-center">
+                    <div class="col-6">Filter By Year:</div>
+                    <div class="col-6">
+                        <select name="filterByYear" id="filterByYear" class="form-control">
+                            @foreach ($years as $year)
+                                <option value="{{ $year->year }}" {{ $year->is_current == 1 ? 'selected' : '' }}>
+                                    {{ $year->year }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
         <div class="container-fluid p-0">
@@ -16,6 +34,13 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
+                        <div class="card-header">
+                            <button class="btn btn-primary btn-sm" type="button" onclick="redirectToViewAPR()">Export APP
+                                <i class="fas fa-file-export"></i></button>
+                            <button class="btn btn-warning btn-sm" type="button" onclick="redirectToViewAPRCSE()">Export
+                                APP-CSE
+                                <i class="fas fa-file-export"></i></button>
+                        </div>
                         <div class="card-body">
                             <table id="ppmpsTable" class="table table-responsive w-100 table-hover">
                                 <thead>
@@ -40,21 +65,23 @@
 
 
     <script>
-        function refreshRequestedItemsTable() {
+        function refreshRequestedItemsTable(year) {
             showLoadingIndicator();
+
             $.ajax({
-                url: "{{ route('bacFetchPPMPs') }}",
-                type: 'POST',
+                url: "{{ route('bacFetchPPMPs') }}", // Ensure this route is correctly defined in Laravel
+                type: 'GET', // Use GET instead of POST unless your route is explicitly set to POST
                 dataType: 'json',
                 data: {
-                    _token: "{{ csrf_token() }}",
+                    year: $('#filterByYear').val(),
                 },
                 success: function(data) {
                     console.log(data);
-
                     hideLoadingIndicator();
+
                     var table = $('#ppmpsTable').DataTable();
                     table.clear();
+
                     data.forEach(function(ppmp) {
                         var statusBadge;
                         switch (ppmp.approvalStatus) {
@@ -62,7 +89,8 @@
                                 statusBadge = '<span class="badge bg-warning">Pending</span>';
                                 break;
                             case 1:
-                                statusBadge = '<span class="badge bg-success">Approved</span>';
+                                statusBadge =
+                                    '<span class="badge bg-success">Approved</span><small> By: FMSO</small>';
                                 break;
                             case 2:
                                 statusBadge = '<span class="badge bg-danger">Disapproved</span>';
@@ -72,11 +100,9 @@
                         }
 
                         var viewButton = `<button type="button" class="btn btn-sm btn-success me-1" 
-                            onclick="viewItemCategory(
-                                ${ppmp.ppmpId}
-                            )" title="Edit">
-                            <i class="fas fa-eye"></i>
-                        </button>`;
+                    onclick="viewPPMPDetails('${ppmp.hashid}')" title="View">
+                    <i class="fas fa-eye"></i>
+                </button>`;
 
                         table.row.add([
                             ppmp.ppmpCode,
@@ -87,6 +113,7 @@
                             viewButton
                         ]);
                     });
+
                     table.draw();
                 },
                 error: function(xhr, status, error) {
@@ -95,6 +122,7 @@
                 }
             });
         }
+
         $(document).ready(function() {
             $('#ppmpsTable').DataTable({
                 "paging": true,
@@ -111,15 +139,29 @@
 
 
 
-            refreshRequestedItemsTable();
+            refreshRequestedItemsTable($('#filterByYear').val());
 
-
+            $('#filterByYear').change(function(e) {
+                refreshRequestedItemsTable($('#filterByYear').val());
+            });
         });
     </script>
 
     <script>
-        function viewItemCategory(ppmpId) {
-            window.location.href = `bac-view-ppmp-details/${ppmpId}`;
+        function viewPPMPDetails(hashid) {
+            window.location.href = `bac-view-ppmp-details/${hashid}`;
+        }
+
+        function redirectToViewAPR() {
+            const year = $('#filterByYear').val(); // get selected year from the dropdown
+            const url = `{{ route('bacOfficeExportAPP', ['year' => '__YEAR__']) }}`.replace('__YEAR__', year);
+            window.open(url, '_blank'); // opens in a new tab
+        }
+
+        function redirectToViewAPRCSE() {
+            const year = $('#filterByYear').val(); // get selected year from the dropdown
+            const url = `{{ route('bacOfficeExportAPPCSE', ['year' => '__YEAR__']) }}`.replace('__YEAR__', year);
+            window.open(url, '_blank'); // opens in a new tab
         }
     </script>
 @endsection

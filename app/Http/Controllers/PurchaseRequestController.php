@@ -125,4 +125,31 @@ class PurchaseRequestController extends Controller
 
         return response()->json($purchaseRequestArray);
     }
+
+    public function bacOfficeFetchPurchaseRequests(Request $request)
+    {
+        $year = $request->input('year'); // Get the year from request
+
+        $purchaseRequestsObject = PurchaseRequest::where('is_submitted', 1)
+            ->whereHas('ppmp.budgetAllocation.wholeBudget', function ($query) use ($year) {
+                $query->where('year', $year);
+            })
+            ->get();
+        $purchaseRequestArray = [];
+
+        foreach ($purchaseRequestsObject as $purchaseRequest) {
+
+            $purchaseRequestArray[] = [
+                'id' => $purchaseRequest->id,
+                'hashid' => Hashids::encode($purchaseRequest->id),
+                'pr_code' => $purchaseRequest->pr_code,
+                'college_office_unit' => $purchaseRequest->collegeOfficeUnit->college_office_unit_name,
+                'created_by' => $purchaseRequest->preparedBy ? $purchaseRequest->preparedBy->firstname . ' ' . substr($purchaseRequest->preparedBy->middlename, 0, 1) . ' ' . $purchaseRequest->preparedBy->lastname : '',
+                'date_submitted' => $purchaseRequest->date_submitted ? Carbon::parse($purchaseRequest->date_submitted)->format('F d, Y') : '',
+                'approval_status' => $purchaseRequest->approval_status,
+            ];
+        }
+
+        return response()->json($purchaseRequestArray);
+    }
 }

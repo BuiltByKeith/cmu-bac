@@ -17,7 +17,7 @@ class ItemController extends Controller
 {
     public function fetchItems()
     {
-        $itemsObject = Item::all();
+        $itemsObject = Item::with(['itemCategory', 'accountCode', 'prices'])->get();
         $items = [];
 
         foreach ($itemsObject as $item) {
@@ -27,14 +27,14 @@ class ItemController extends Controller
                 'item_name' => $item->item_name,
                 'item_code' => $item->item_code,
                 'item_description' => $item->item_description,
-                'item_unit_of_measure' => $item->unit_of_measure,
+                'item_unit_of_measure' => $item->unit_of_measure, // ✅ Fixed: matches JS expectation
                 'is_available' => $item->is_available,
                 'is_psdbm' => $item->is_psdbm,
-                'item_category_id' => $item->item_category_id ? $item->item_category_id : '0',
+                'item_category_id' => $item->item_category_id ? $item->item_category_id : 0,
                 'item_category_name' => $item->itemCategory ? $item->itemCategory->item_category_name : 'No Category',
                 'current_price' => $itemPrice ? Number::currency($itemPrice->price, 'PHP') : Number::currency('0.0', 'PHP'),
-                'account_code_name' => $item->accountCode->account_name,
-                'account_code_id' => $item->account_code_id,
+                'account_code_name' => $item->accountCode ? $item->accountCode->account_name : 'No Account Code', // ✅ Fixed: null check
+                'account_code_id' => $item->account_code_id ?? 0, // ✅ Fixed: null coalescing
             ];
         }
 

@@ -271,8 +271,8 @@
         function refreshItemTable() {
             showLoadingIndicator();
             $.ajax({
-                url: "{{ route('fetchItems') }}",
-                type: 'POST',
+                url: "{{ route('bacFetchItems') }}",
+                type: 'GET',
                 dataType: 'json',
                 data: {
                     _token: "{{ csrf_token() }}",

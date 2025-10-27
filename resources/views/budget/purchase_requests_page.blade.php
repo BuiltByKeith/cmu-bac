@@ -32,7 +32,11 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
+                        <div class="card-header">
+                            <button class="btn btn-primary btn-sm" type="button" onclick="redirectToViewAPR()">Export APR
+                                <i class="fas fa-file-export"></i></button>
 
+                        </div>
                         <div class="card-body">
                             <table id="purchaseRequestsTable" class="table table-responsive w-100 table-hover">
                                 <thead>
@@ -138,6 +142,12 @@
 
         function viewPurchaseRequest(hashid) {
             window.location.href = `budget-office-purchase-requests-details/${hashid}`;
+        }
+
+        function redirectToViewAPR() {
+            const year = $('#filterByYear').val(); // get selected year from the dropdown
+            const url = `{{ route('budgetOfficeExportAPR', ['year' => '__YEAR__']) }}`.replace('__YEAR__', year);
+            window.open(url, '_blank'); // opens in a new tab
         }
     </script>
 

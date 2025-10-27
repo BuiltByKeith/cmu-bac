@@ -19,6 +19,7 @@ return new class extends Migration
             $table->bigInteger('is_submitted');
             $table->bigInteger('approval_status');
             $table->bigInteger('incrementing_number')->nullable();
+            $table->foreignId('signatory_id')->constrained('signatories');
             $table->timestamps();
         });
     }

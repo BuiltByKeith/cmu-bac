@@ -22,4 +22,14 @@ class CollegeOfficeUnit extends Model
     {
         return $this->hasMany(BudgetAllocation::class, 'college_office_unit_id', 'id');
     }
+
+    public function signatories()
+    {
+        return $this->hasMany(Signatory::class, 'college_office_unit_id');
+    }
+
+    public function activeSignatory()
+    {
+        return $this->hasOne(Signatory::class)->where('is_active', true);
+    }
 }

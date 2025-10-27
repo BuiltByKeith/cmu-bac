@@ -131,7 +131,7 @@
         function refreshItemCategoryTable() {
             showLoadingIndicator();
             $.ajax({
-                url: "{{ route('fetchItemCategories') }}",
+                url: "{{ route('adminFetchItemCategories') }}",
                 type: 'POST',
                 dataType: 'json',
                 data: {

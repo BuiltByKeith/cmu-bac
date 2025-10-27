@@ -40,7 +40,7 @@
             <a href="{{ route('login') }}" class="btn">Login</a>
         </div>
         <div class="home-img">
-            <img src="{{ asset('images/oupd-Logo.png') }}" alt="OSA logo">
+            <img src="{{ asset('images/cmubaclogo.png') }}" alt="OSA logo">
         </div>
     </section>
     <div class="achievement-overlay">

@@ -9,6 +9,15 @@ class Signatory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['fullname', 'label', 'description'];
+    protected $fillable = [
+        'fullname',
+        'label',
+        'description'
+    ];
 
+    public function collegeOfficeUnit()
+    {
+
+        return $this->belongsTo(CollegeOfficeUnit::class, 'signatory_id', 'id');
+    }
 }

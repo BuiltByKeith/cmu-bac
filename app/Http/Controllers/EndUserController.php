@@ -6,6 +6,7 @@ use App\Models\AccountCode;
 use App\Models\BudgetAllocation;
 use App\Models\Canvass;
 use App\Models\Item;
+use App\Models\ItemCategory;
 use App\Models\PPMP;
 use App\Models\PurchaseRequest;
 use App\Models\RequestedItem;
@@ -14,6 +15,7 @@ use App\Models\Year;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Number;
 use Vinkla\Hashids\Facades\Hashids;
 
 class EndUserController extends Controller
@@ -67,6 +69,52 @@ class EndUserController extends Controller
         ));
     }
 
+    public function endUserItemInventoryPage()
+    {
+        $itemCategories = ItemCategory::all();
+        $accountCodes = AccountCode::all();
+        return view('end_user.items_inventory_page', compact('itemCategories', 'accountCodes'));
+    }
+
+    public function fetchItems(Request $request)
+    {
+        $query = Item::with(['itemCategory', 'accountCode', 'prices' => function ($q) {
+            $q->where('is_active', 1);
+        }]);
+
+        // ✅ Category filter
+        if (!empty($request->category)) {
+            $query->where('item_category_id', $request->category);
+        }
+
+        // ✅ Account code filter
+        if (!empty($request->account_code)) {
+            $query->where('account_code_id', $request->account_code);
+        }
+
+        $itemsObject = $query->get();
+        $items = [];
+
+        foreach ($itemsObject as $item) {
+            $itemPrice = $item->prices->first();
+            $items[] = [
+                'id' => $item->id,
+                'item_name' => $item->item_name,
+                'item_code' => $item->item_code,
+                'item_description' => $item->item_description,
+                'item_unit_of_measure' => $item->unit_of_measure,
+                'is_available' => $item->is_available,
+                'is_psdbm' => $item->is_psdbm,
+                'item_category_id' => $item->item_category_id ?? 0,
+                'item_category_name' => $item->itemCategory->item_category_name ?? 'No Category',
+                'current_price' => $itemPrice ? Number::currency($itemPrice->price, 'PHP') : Number::currency(0, 'PHP'),
+                'account_code_name' => $item->accountCode->account_name ?? 'No Account Code',
+                'account_code_id' => $item->account_code_id,
+            ];
+        }
+
+        return response()->json($items);
+    }
 
 
     public function userRequestItemsPage()
@@ -97,20 +145,53 @@ class EndUserController extends Controller
             })
             ->get();
 
-        return view('end_user.ppmps_page', compact('year', 'years', 'budgetAllocations'));
+        $activeYear = Year::where('is_current', 1)->first();
+
+        return view('end_user.ppmps_page', compact('year', 'years', 'budgetAllocations', 'activeYear'));
     }
+
+
     public function endUserPPMPDetails($hashid)
     {
-
         $decoded = Hashids::decode($hashid);
         if (empty($decoded)) {
-            abort(404); // hash is invalid or not decodable
+            abort(404);
         }
 
-        $id = $decoded[0];
+        $ppmp = PPMP::findOrFail($decoded[0]);
+        $budgetAllocation = $ppmp->budgetAllocation;
 
-        $ppmp = PPMP::findOrFail($id);
-        return view('end_user.ppmp_details_page', compact('ppmp'));
+        // Calculate total budget used across all PPMPs for this account code
+        $totalBudgetUsed = $budgetAllocation->ppmps()
+            ->with(['ppmpItems.item.prices' => fn($query) => $query->where('is_active', 1)])
+            ->get()
+            ->sum(function ($singlePPMP) {
+                return $singlePPMP->ppmpItems->sum(function ($ppmpItem) {
+                    $totalQuantity = array_sum([
+                        $ppmpItem->january_quantity,
+                        $ppmpItem->february_quantity,
+                        $ppmpItem->march_quantity,
+                        $ppmpItem->april_quantity,
+                        $ppmpItem->may_quantity,
+                        $ppmpItem->june_quantity,
+                        $ppmpItem->july_quantity,
+                        $ppmpItem->august_quantity,
+                        $ppmpItem->september_quantity,
+                        $ppmpItem->october_quantity,
+                        $ppmpItem->november_quantity,
+                        $ppmpItem->december_quantity
+                    ]);
+
+                    $activePrice = $ppmpItem->item->prices->where('is_active', 1)->first();
+
+                    return ($activePrice && $totalQuantity > 0) ? ($totalQuantity * $activePrice->price) : 0;
+                });
+            });
+
+        $totalBudget = $budgetAllocation->amount;
+        $remainingBudget = $budgetAllocation->amount - $totalBudgetUsed;
+
+        return view('end_user.ppmp_details_page', compact('ppmp', 'totalBudget', 'remainingBudget'));
     }
 
     public function endUserSubmitPPMPTemplate(Request $request)
@@ -120,17 +201,29 @@ class EndUserController extends Controller
             'is_submitted' => 'required|numeric'
         ]);
 
+
+
         $ppmp = PPMP::findOrFail($validatedData['ppmp_id']);
+
+        $activeYearPPMPDeadline = Year::where('is_current', 1)->first();
+
+
 
         if ($ppmp &&  $ppmp->ppmpItems->count() <= 0) {
             return  response()->json(['success' => false, 'message' => 'Cannot submit a PPMP template without items!']);
         }
         if ($ppmp && $ppmp->is_submitted == 0) {
+            if (now()->gte($activeYearPPMPDeadline->ppmp_deadline) || $activeYearPPMPDeadline->is_open == 0) {
+                return  response()->json(['success' => false, 'message' => 'Cannot submit this PPMP. Deadline has already passed and the submission is officially closed']);
+            }
             $ppmp->update([
                 'is_submitted' => 1
             ]);
             return response()->json(['success' => true, 'message' => 'PPMP Successfully Submitted!']);
         } else if ($ppmp && $ppmp->is_submitted == 1) {
+            if (now()->gte($activeYearPPMPDeadline->ppmp_deadline) || $activeYearPPMPDeadline->is_open == 0) {
+                return  response()->json(['success' => false, 'message' => 'Cannot unsubmit this PPMP. Deadline has already passed and the submission is officially closed']);
+            }
             $ppmp->update([
                 'is_submitted' => 0
             ]);
@@ -180,7 +273,8 @@ class EndUserController extends Controller
         }
         if ($purchaseRequest && $purchaseRequest->is_submitted == 0) {
             $purchaseRequest->update([
-                'is_submitted' => 1
+                'is_submitted' => 1,
+                'date_submitted' => now(),
             ]);
             return response()->json(['success' => true, 'message' => 'Purchase Request Successfully Submitted!']);
         } else if ($purchaseRequest && $purchaseRequest->is_submitted == 1) {

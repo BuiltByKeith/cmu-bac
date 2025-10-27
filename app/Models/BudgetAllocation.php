@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class BudgetAllocation extends Model
 {
     protected $fillable = [
-        'college_office_unit_id', 
-        'whole_budget_id', 
-        'amount', 
-        'allocated_by', 
-        'account_code_id', 
+        'college_office_unit_id',
+        'whole_budget_id',
+        'amount',
+        'allocated_by',
+        'account_code_id',
         'date_allocated',
     ];
 
@@ -33,5 +33,10 @@ class BudgetAllocation extends Model
     public function accountCode()
     {
         return $this->belongsTo(AccountCode::class, 'account_code_id', 'id');
+    }
+
+    public function ppmps()
+    {
+        return $this->hasMany(PPMP::class, 'budget_allocation_id');
     }
 }

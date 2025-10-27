@@ -4,7 +4,6 @@
 
 @section('content')
     <div class="container-fluid">
-
         <div class="row mb-2 mb-xl-3 align-items-center">
             <div class="col-auto">
                 <h1 class="mb-0">List of Project Procurement Management Plan</h1>
@@ -15,29 +14,58 @@
                     <div class="col-6">
                         <select name="filterByYear" id="filterByYear" class="form-control">
                             @foreach ($years as $year)
-                                <option value="{{ $year->year }}" {{ $year->is_current == 1 ? 'selected' : '' }}>
+                                <option value="{{ $year->year }}" data-deadline="{{ $year->ppmp_deadline }}"
+                                    data-is_open="{{ $year->is_open }}" {{ $year->is_current == 1 ? 'selected' : '' }}>
                                     {{ $year->year }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-
             </div>
         </div>
+
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-info" id="deadline-info">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        <div>
+                            <strong>PPMP Submission Deadline:</strong>
+                            <span id="ppmp-deadline-display">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mx-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <div>
+                            <strong>Submission Status:</strong>
+                            <span id="submission-status">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="container-fluid p-0">
             <div class="row">
                 <div class="card">
                     <div class="card-header text-end">
-                        <button type="button" class="btn btn-success" id="addNewPPMPButton"><i data-lucide="plus"
-                                class="lucide lucide-plus"></i> Create new PPMP</button>
+
+                        @if (now()->lt($activeYear->ppmp_deadline))
+                            <button type="button" class="btn btn-success" id="addNewPPMPButton" disabled>
+                                <i data-lucide="plus" class="lucide lucide-plus"></i> Create new PPMP
+                            </button>
+                        @endif
+
+
                     </div>
                     <div class="card-body">
                         <table class="table table-responsive table-hover" id="ppmpsTable">
                             <thead>
                                 <tr>
                                     <th style="width: 15%">PPMP Code</th>
-                                    <th style="width: 30%">Account Code</th>
+                                    <th style="width: 25%">Account Code</th>
+                                    <th>Amount</th>
                                     <th style="width: 15%">Fund Source</th>
                                     <th>Submitted</th>
                                     <th>Approval Status</th>
@@ -56,7 +84,7 @@
 
     <div class="modal fade" id="addNewPPMPModal" tabindex="-1" role="dialog" aria-labelledby="addNewPPMPModal"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Create PPMP Template</h5>
@@ -70,20 +98,7 @@
                             <div class="col-12 mb-3">
                                 <label class="form-label">Account Code</label>
                                 <select name="addNewPPMPAccountCode" id="addNewPPMPAccountCode" class="form-select">
-                                    @if (count($budgetAllocations) > 0)
-                                        <option value="" disabled selected>Select an account code with budget</option>
-                                        @foreach ($budgetAllocations as $allocation)
-                                            <option value="{{ $allocation->id }}">
-                                                {{ $allocation->accountCode->account_name }} |
-                                                {{ Number::currency($allocation->amount, 'PHP') }} |
-                                                {{ $allocation->wholeBudget->source_of_fund }} |
-                                                {{ $allocation->wholeBudget->year }}
-                                            </option>
-                                        @endforeach
-                                    @else
-                                        <option value="" disabled selected>There is currently no budget available for
-                                            this year</option>
-                                    @endif
+
                                 </select>
                             </div>
                         </div>
@@ -159,7 +174,7 @@
             <button type="button" class="btn btn-sm btn-primary" title="View PPMP" onclick="viewPPMP('${ppmp.hashid}')">
                 <i class="fas fa-eye"></i> 
             </button>
-            <button type="button" class="btn btn-sm btn-danger" title="Delete PPMP" onclick="deletePPMP(${ppmp.id}, '${ppmp.ppmp_code}')">
+            <button type="button" class="btn btn-sm btn-danger" title="Delete PPMP" onclick="deletePPMP(${ppmp.id}, '${ppmp.ppmpCode}')">
                 <i class="fas fa-trash"></i>
             </button>
         `;
@@ -169,6 +184,7 @@
                         table.row.add([
                             ppmp.ppmpCode,
                             ppmp.accountCode,
+                            `${ppmp.totalAmount}/${ppmp.availableBudget}`,
                             ppmp.fundSource,
                             submissionStatus,
                             approvalStatus,
@@ -197,6 +213,8 @@
                 success: function(data) {
                     let select = $('#addNewPPMPAccountCode');
                     select.empty(); // Clear previous options
+                    console.log(data); // Check fetched data in console
+
 
                     if (data.length > 0) {
                         select.append(
@@ -206,9 +224,11 @@
                             select.append(`
                         <option value="${allocation.id}">
                             ${allocation.account_code.account_name} |
+                            ${new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(allocation.remaining_budget)} /
                             ${new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(allocation.amount)} |
                             ${allocation.whole_budget.source_of_fund} |
-                            ${allocation.whole_budget.year}
+                            ${allocation.whole_budget.year} |
+                            ${allocation.whole_budget.type_of_budget}
                         </option>
                     `);
                         });
@@ -223,7 +243,63 @@
             });
         }
 
+        function updateDeadlineDisplay() {
+            const selectedOption = $('#filterByYear option:selected');
+            const deadline = selectedOption.data('deadline');
+            const isOpen = selectedOption.data('is_open');
 
+            // Update submission status based on is_open value
+            if (isOpen == 1) {
+                $('#submission-status').html(
+                    '<span class="badge bg-success">OPEN</span> PPMP submission is currently open for this year.');
+                $('#addNewPPMPButton').prop('disabled', false);
+            } else {
+                $('#submission-status').html(
+                    '<span class="badge bg-danger">CLOSED</span> PPMP submission is closed for this year.');
+                $('#addNewPPMPButton').prop('disabled', true);
+            }
+
+            if (deadline) {
+                // Format date for display
+                const deadlineDate = new Date(deadline);
+                const formattedDeadline = deadlineDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                // Calculate days remaining
+                const today = new Date();
+                const daysRemaining = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+
+                let deadlineHTML = formattedDeadline;
+
+                // Add days remaining context
+                if (daysRemaining > 0) {
+                    deadlineHTML += ` <span class="badge bg-primary ms-2">${daysRemaining} days remaining</span>`;
+                } else if (daysRemaining === 0) {
+                    deadlineHTML += ` <span class="badge bg-warning ms-2">Due today!</span>`;
+                } else {
+                    deadlineHTML += ` <span class="badge bg-danger ms-2">Deadline passed!</span>`;
+                }
+
+                $('#ppmp-deadline-display').html(deadlineHTML);
+
+                // Update alert color based on urgency and is_open
+                const alertElement = $('#deadline-info');
+                if (!isOpen) {
+                    alertElement.removeClass('alert-info alert-warning').addClass('alert-danger');
+                } else if (daysRemaining <= 0) {
+                    alertElement.removeClass('alert-info').addClass('alert-danger');
+                } else if (daysRemaining <= 7) {
+                    alertElement.removeClass('alert-info').addClass('alert-warning');
+                } else {
+                    alertElement.removeClass('alert-warning alert-danger').addClass('alert-info');
+                }
+            } else {
+                $('#ppmp-deadline-display').text('No deadline set');
+            }
+        }
 
         $(document).ready(function() {
             $('#ppmpsTable').DataTable({
@@ -239,23 +315,24 @@
 
             }).buttons().container().appendTo('#ppmpsTable_wrapper .col-md-6:eq(0)');
 
-
+            // Update deadline display on page load
+            updateDeadlineDisplay();
 
             refreshPPMPsTable($('#filterByYear').val());
             refreshBudgetAllocations($('#filterByYear').val());
-
 
             $('#filterByYear').change(function(e) {
                 let selectedYear = $(this).val();
                 refreshPPMPsTable(selectedYear);
                 refreshBudgetAllocations(selectedYear);
+                updateDeadlineDisplay(); // Update deadline display when year changes
             });
         });
     </script>
 
     <script>
         function viewPPMP(id) {
-            window.location.href = `end-user-ppmp-details/${id}`;
+            window.location.href = "{{ route('endUserPPMPDetails', ':id') }}".replace(':id', id);
         }
 
         function deletePPMP(id, ppmpCode) {
@@ -305,7 +382,17 @@
         }
 
         $('#addNewPPMPButton').click(function() {
-            $('#addNewPPMPModal').modal('show');
+            // Double-check if submission is open before showing modal
+            const isOpen = $('#filterByYear option:selected').data('is_open');
+            if (isOpen == 1) {
+                $('#addNewPPMPModal').modal('show');
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Submission Closed',
+                    text: 'PPMP submission is currently closed for this year.'
+                });
+            }
         });
 
         $('#addNewPPMPForm').on('submit', function(e) {
@@ -328,14 +415,25 @@
                 success: function(response) {
                     $('#addNewPPMPForm')[0].reset();
                     $('#addNewPPMPModal').modal('hide');
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: response.message
-                    }).then(() => {
-                        refreshPPMPsTable($('#filterByYear').val());
-                        refreshBudgetAllocations($('#filterByYear').val());
-                    });
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message
+                        }).then(() => {
+                            refreshPPMPsTable($('#filterByYear').val());
+                            refreshBudgetAllocations($('#filterByYear').val());
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: response.message
+                        }).then(() => {
+                            refreshPPMPsTable($('#filterByYear').val());
+                            refreshBudgetAllocations($('#filterByYear').val());
+                        });
+                    }
                 },
                 error: function(xhr) {
                     Swal.fire({
@@ -348,7 +446,7 @@
                 complete: function() {
                     // Re-enable submit button and hide loading state
                     submitButton.prop('disabled', false);
-                    submitButton.find('.submit-text').text('Changes Saved');
+                    submitButton.find('.submit-text').text('Save Changes');
                     submitButton.find('.spinner-border').addClass('d-none');
                 }
             });

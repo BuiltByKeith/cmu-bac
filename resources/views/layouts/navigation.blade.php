@@ -101,58 +101,20 @@
             <ul id="purchasing" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar"
                 style="">
                 <li class="sidebar-item">
+                    <a class="sidebar-link" href="{{ route('bacPPMPsPage') }}">
+                        <i class="align-middle" data-lucide="file"></i><span>PPMP</span>
+                        
+                    </a>
+                </li>
+                <li class="sidebar-item">
                     <a class="sidebar-link" href="{{ route('bacPurchaseRequestPage') }}">
                         <i class="align-middle" data-lucide="file-input"></i> Purchase Request
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="{{ route('bacPPMPsPage') }}">
-                        <i class="align-middle" data-lucide="file"></i><span>PPMP</span>
-                        @if ($pendingPPMPsCount > 0)
-                            <span class="badge bg-warning">{{ $pendingPPMPsCount }}</span>
-                        @endif
-                    </a>
-                </li>
-            </ul>
-        </li>
-        {{-- <li class="sidebar-item">
-            <a data-bs-target="#distribution" data-bs-toggle="collapse" class="sidebar-link collapsed"
-                aria-expanded="false">
-                <i class="align-middle" data-lucide="file-text"></i> <span class="align-middle">Distribution</span>
-            </a>
-            <ul id="distribution" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar"
-                style="">
-                <li class="sidebar-item"><a class="sidebar-link" href=""><i class="align-middle"
-                            data-lucide="file"></i> By PPMP</a></li>
-                <li class="sidebar-item"><a class="sidebar-link" href=""><i class="align-middle"
-                            data-lucide="file"></i> By Items</a></li>
 
             </ul>
-        </li> --}}
-        {{-- <li class="sidebar-item">
-            <a data-bs-target="#vendors" data-bs-toggle="collapse" class="sidebar-link collapsed"
-                aria-expanded="false">
-                <i class="align-middle" data-lucide="store"></i> <span class="align-middle">Vendors</span>
-            </a>
-            <ul id="vendors" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar"
-                style="">
-                <li class="sidebar-item"><a class="sidebar-link" href=""><i class="align-middle"
-                            data-lucide="users"></i> Suppliers</a></li>
-                <li class="sidebar-item"><a class="sidebar-link" href=""><i class="align-middle"
-                            data-lucide="users"></i> Bidders</a></li>
-
-            </ul>
-        </li> --}}
-        {{-- <li class="sidebar-item">
-            <a class='sidebar-link' href=''>
-                <i class="align-middle" data-lucide="ticket"></i> <span class="align-middle">Procurements</span>
-            </a>
         </li>
-        <li class="sidebar-item">
-            <a class='sidebar-link' href=''>
-                <i class="align-middle" data-lucide="folder-output"></i> <span class="align-middle">RFQs</span>
-            </a>
-        </li> --}}
+
     @endif
 
     {{-- BUDGET OFFICER --}}
@@ -228,11 +190,23 @@
                 <i class="align-middle" data-lucide="hand-coins"></i> <span class="align-middle">Budgeting</span>
             </a>
         </li>
+
         <li class="sidebar-item">
-            <a class='sidebar-link' href='{{ route('userRequestItemsPage') }}'>
-                <i class="align-middle" data-lucide="hand-helping"></i> <span class="align-middle">Request
-                    Item</span>
+            <a data-bs-target="#items" data-bs-toggle="collapse" class="sidebar-link collapsed"
+                aria-expanded="false">
+                <i class="align-middle" data-lucide="clipboard-list"></i> <span class="align-middle">Items</span>
             </a>
+            <ul id="items" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar"
+                style="">
+                <li class="sidebar-item"><a class="sidebar-link" href="{{ route('endUserItemInventoryPage') }}"><i
+                            class="align-middle" data-lucide="archive"></i> Inventory</a></li>
+                <li class="sidebar-item"><a class="sidebar-link" href="{{ route('userRequestItemsPage') }}"><i
+                            class="align-middle" data-lucide="hand-helping"></i> Request
+                        Item</a></li>
+
+
+
+            </ul>
         </li>
 
         <li class="sidebar-item">

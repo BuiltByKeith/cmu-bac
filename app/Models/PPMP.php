@@ -8,7 +8,7 @@ class PPMP extends Model
 {
     //
 
-    protected $fillable = ['budget_allocation_id', 'created_by', 'ppmp_code', 'is_submitted', 'incrementing_number', 'approval_status'];
+    protected $fillable = ['budget_allocation_id', 'created_by', 'ppmp_code', 'is_submitted', 'incrementing_number', 'approval_status', 'signatory_id'];
 
     public function budgetAllocation()
     {
@@ -28,5 +28,10 @@ class PPMP extends Model
     public function ppmpItems()
     {
         return $this->hasMany(PPMPItem::class, 'ppmp_id');
+    }
+
+    public function signatory()
+    {
+        return $this->belongsTo(Signatory::class, 'signatory_id', 'id');
     }
 }

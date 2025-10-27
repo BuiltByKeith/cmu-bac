@@ -15,28 +15,32 @@ class PPMPItemController extends Controller
     public function fetchItemsForPPMP(Request $request)
     {
         $ppmp = PPMP::findOrFail($request->ppmp_id);
-    
+
         $query = Item::where('account_code_id', $ppmp->budgetAllocation->accountCode->id);
-    
+
         // Apply search filter if the user has entered a search term
         if ($request->filled('search')) {
             $query->where('item_name', 'LIKE', '%' . $request->search . '%');
         }
-    
+
         // Limit results for performance
         $itemsObject = $query->limit(10)->get();
-    
+
         // Map results for Select2
         $items = $itemsObject->map(function ($item) {
+            $activePrice = $item->prices()->where('is_active', 1)->first();
+            $priceText = $activePrice ? Number::currency($activePrice->price, 'PHP') : 'No active price';
+
             return [
                 'id' => $item->id,
-                'text' => $item->item_name, // Select2 requires 'text' instead of 'item_name'
+                'text' => $item->item_name . ' --- ' . $priceText,
             ];
         });
-    
+
+
         return response()->json(['results' => $items]);
     }
-    
+
 
 
 
@@ -44,6 +48,7 @@ class PPMPItemController extends Controller
     {
         $validatedData = $request->validate([
             'ppmpId' => 'required|exists:p_p_m_p_s,id|numeric',
+            'remainingBudget' => 'required|numeric',
             'itemId' => 'required|exists:items,id|numeric',
             'janMilsQuantity' => 'nullable|numeric|min:0',
             'febMilsQuantity' => 'nullable|numeric|min:0',
@@ -61,33 +66,77 @@ class PPMPItemController extends Controller
 
         $ppmp = PPMP::findOrFail($validatedData['ppmpId']);
 
-        if ($ppmp->is_submitted == 0) {
-            PPMPItem::create([
-                'ppmp_id' => $validatedData['ppmpId'],
-                'item_id' => $validatedData['itemId'],
-                'january_quantity' => $validatedData['janMilsQuantity'] ? $validatedData['janMilsQuantity'] : 0,
-                'february_quantity' => $validatedData['febMilsQuantity'] ? $validatedData['febMilsQuantity'] : 0,
-                'march_quantity' => $validatedData['marMilsQuantity'] ? $validatedData['marMilsQuantity'] : 0,
-                'april_quantity' => $validatedData['aprMilsQuantity'] ? $validatedData['aprMilsQuantity'] : 0,
-                'may_quantity' => $validatedData['mayMilsQuantity'] ? $validatedData['mayMilsQuantity'] : 0,
-                'june_quantity' => $validatedData['junMilsQuantity'] ? $validatedData['junMilsQuantity'] : 0,
-                'july_quantity' => $validatedData['julMilsQuantity'] ? $validatedData['julMilsQuantity'] : 0,
-                'august_quantity' => $validatedData['augMilsQuantity'] ? $validatedData['augMilsQuantity'] : 0,
-                'september_quantity' => $validatedData['sepMilsQuantity'] ? $validatedData['sepMilsQuantity'] : 0,
-                'october_quantity' => $validatedData['octMilsQuantity'] ? $validatedData['octMilsQuantity'] : 0,
-                'november_quantity' => $validatedData['novMilsQuantity'] ? $validatedData['novMilsQuantity'] : 0,
-                'december_quantity' => $validatedData['decMilsQuantity'] ? $validatedData['decMilsQuantity'] : 0,
-            ]);
-            return response()->json(['success' => true, 'message' => 'Item added to PPMP successfully!']);
+        // Check if PPMP is already submitted
+        if ($ppmp->is_submitted == 1) {
+            return response()->json(['success' => false, 'message' => 'Cannot add new item because PPMP is already submitted!']);
         }
 
-        return response()->json(['success' => false, 'message' => 'Cannot add new item because PPMP is already submitted!']);
+        // Calculate total quantity for the item
+        $totalQuantity = array_sum([
+            $validatedData['janMilsQuantity'] ?? 0,
+            $validatedData['febMilsQuantity'] ?? 0,
+            $validatedData['marMilsQuantity'] ?? 0,
+            $validatedData['aprMilsQuantity'] ?? 0,
+            $validatedData['mayMilsQuantity'] ?? 0,
+            $validatedData['junMilsQuantity'] ?? 0,
+            $validatedData['julMilsQuantity'] ?? 0,
+            $validatedData['augMilsQuantity'] ?? 0,
+            $validatedData['sepMilsQuantity'] ?? 0,
+            $validatedData['octMilsQuantity'] ?? 0,
+            $validatedData['novMilsQuantity'] ?? 0,
+            $validatedData['decMilsQuantity'] ?? 0
+        ]);
+
+        // Check if any quantity is provided
+        if ($totalQuantity <= 0) {
+            return response()->json(['success' => false, 'message' => 'Please specify at least one quantity for any month.']);
+        }
+
+        // Get the active price for the item
+        $item = Item::findOrFail($validatedData['itemId']);
+        $activePrice = $item->prices()->where('is_active', 1)->first();
+
+        if (!$activePrice) {
+            return response()->json(['success' => false, 'message' => 'No active price found for this item. Please contact administrator.']);
+        }
+
+        // Calculate total amount for this item
+        $totalItemAmount = $totalQuantity * $activePrice->price;
+
+        // Check if total item amount exceeds remaining budget
+        if ($totalItemAmount > $validatedData['remainingBudget']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot add this item. Total cost (₱' . number_format($totalItemAmount, 2) . ') exceeds remaining budget (₱' . number_format($validatedData['remainingBudget'], 2) . ').'
+            ]);
+        }
+
+        // Create the PPMP item
+        PPMPItem::create([
+            'ppmp_id' => $validatedData['ppmpId'],
+            'item_id' => $validatedData['itemId'],
+            'january_quantity' => $validatedData['janMilsQuantity'] ?? 0,
+            'february_quantity' => $validatedData['febMilsQuantity'] ?? 0,
+            'march_quantity' => $validatedData['marMilsQuantity'] ?? 0,
+            'april_quantity' => $validatedData['aprMilsQuantity'] ?? 0,
+            'may_quantity' => $validatedData['mayMilsQuantity'] ?? 0,
+            'june_quantity' => $validatedData['junMilsQuantity'] ?? 0,
+            'july_quantity' => $validatedData['julMilsQuantity'] ?? 0,
+            'august_quantity' => $validatedData['augMilsQuantity'] ?? 0,
+            'september_quantity' => $validatedData['sepMilsQuantity'] ?? 0,
+            'october_quantity' => $validatedData['octMilsQuantity'] ?? 0,
+            'november_quantity' => $validatedData['novMilsQuantity'] ?? 0,
+            'december_quantity' => $validatedData['decMilsQuantity'] ?? 0,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Item added to PPMP successfully!']);
     }
 
     public function endUserEditPPMPItem(Request $request)
     {
         $validatedData = $request->validate([
             'PPMPItemId' => 'required|exists:p_p_m_p_items,id|numeric',
+            'remainingBudget' => 'required|numeric',
             'janMilsQuantity' => 'nullable|numeric|min:0',
             'febMilsQuantity' => 'nullable|numeric|min:0',
             'marMilsQuantity' => 'nullable|numeric|min:0',
@@ -104,25 +153,80 @@ class PPMPItemController extends Controller
 
         $PPMPItem = PPMPItem::findOrFail($validatedData['PPMPItemId']);
 
-        if ($PPMPItem && $PPMPItem->ppmp->is_submitted == 0) {
-            $PPMPItem->update([
-                'january_quantity' => $validatedData['janMilsQuantity'],
-                'february_quantity' => $validatedData['febMilsQuantity'],
-                'march_quantity' => $validatedData['marMilsQuantity'],
-                'april_quantity' => $validatedData['aprMilsQuantity'],
-                'may_quantity' => $validatedData['mayMilsQuantity'],
-                'june_quantity' => $validatedData['junMilsQuantity'],
-                'july_quantity' => $validatedData['julMilsQuantity'],
-                'august_quantity' => $validatedData['augMilsQuantity'],
-                'september_quantity' => $validatedData['sepMilsQuantity'],
-                'october_quantity' => $validatedData['octMilsQuantity'],
-                'november_quantity' => $validatedData['novMilsQuantity'],
-                'december_quantity' => $validatedData['decMilsQuantity'],
-            ]);
-
-            return response()->json(['success' => true, 'message' => 'Item Milestone Updated Successfully!']);
+        // Check if PPMP is already submitted
+        if ($PPMPItem->ppmp->is_submitted == 1) {
+            return response()->json(['success' => false, 'message' => 'Item Milestone Update Failed! Cannot edit items if the PPMP is already submitted.']);
         }
-        return response()->json(['success' => false, 'message' => 'Item Milestone Update Failed! Cannot edit items if the PPMP is already submitted.']);
+
+        // Calculate new total quantity
+        $newTotalQuantity = array_sum([
+            $validatedData['janMilsQuantity'] ?? 0,
+            $validatedData['febMilsQuantity'] ?? 0,
+            $validatedData['marMilsQuantity'] ?? 0,
+            $validatedData['aprMilsQuantity'] ?? 0,
+            $validatedData['mayMilsQuantity'] ?? 0,
+            $validatedData['junMilsQuantity'] ?? 0,
+            $validatedData['julMilsQuantity'] ?? 0,
+            $validatedData['augMilsQuantity'] ?? 0,
+            $validatedData['sepMilsQuantity'] ?? 0,
+            $validatedData['octMilsQuantity'] ?? 0,
+            $validatedData['novMilsQuantity'] ?? 0,
+            $validatedData['decMilsQuantity'] ?? 0
+        ]);
+
+        // Calculate current item total quantity (before edit)
+        $currentTotalQuantity = array_sum([
+            $PPMPItem->january_quantity,
+            $PPMPItem->february_quantity,
+            $PPMPItem->march_quantity,
+            $PPMPItem->april_quantity,
+            $PPMPItem->may_quantity,
+            $PPMPItem->june_quantity,
+            $PPMPItem->july_quantity,
+            $PPMPItem->august_quantity,
+            $PPMPItem->september_quantity,
+            $PPMPItem->october_quantity,
+            $PPMPItem->november_quantity,
+            $PPMPItem->december_quantity
+        ]);
+
+        // Get the active price for the item
+        $activePrice = $PPMPItem->item->prices()->where('is_active', 1)->first();
+
+        if (!$activePrice) {
+            return response()->json(['success' => false, 'message' => 'No active price found for this item. Please contact administrator.']);
+        }
+
+        // Calculate the difference in cost
+        $currentItemAmount = $currentTotalQuantity * $activePrice->price;
+        $newItemAmount = $newTotalQuantity * $activePrice->price;
+        $amountDifference = $newItemAmount - $currentItemAmount;
+
+        // Check if the difference exceeds remaining budget
+        if ($amountDifference > $validatedData['remainingBudget']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot update this item. Additional cost (₱' . number_format($amountDifference, 2) . ') exceeds remaining budget (₱' . number_format($validatedData['remainingBudget'], 2) . ').'
+            ]);
+        }
+
+        // Update the PPMP item
+        $PPMPItem->update([
+            'january_quantity' => $validatedData['janMilsQuantity'] ?? 0,
+            'february_quantity' => $validatedData['febMilsQuantity'] ?? 0,
+            'march_quantity' => $validatedData['marMilsQuantity'] ?? 0,
+            'april_quantity' => $validatedData['aprMilsQuantity'] ?? 0,
+            'may_quantity' => $validatedData['mayMilsQuantity'] ?? 0,
+            'june_quantity' => $validatedData['junMilsQuantity'] ?? 0,
+            'july_quantity' => $validatedData['julMilsQuantity'] ?? 0,
+            'august_quantity' => $validatedData['augMilsQuantity'] ?? 0,
+            'september_quantity' => $validatedData['sepMilsQuantity'] ?? 0,
+            'october_quantity' => $validatedData['octMilsQuantity'] ?? 0,
+            'november_quantity' => $validatedData['novMilsQuantity'] ?? 0,
+            'december_quantity' => $validatedData['decMilsQuantity'] ?? 0,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Item Milestone Updated Successfully!']);
     }
 
     public function endUserDeleteItemFromPPMP(Request $request)

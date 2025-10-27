@@ -5,22 +5,25 @@
 @section('content')
     <div class="container-fluid p-0">
 
-        <div class="row mb-2 mb-xl-3 d-flex align-items-center">
-            <div class="col d-flex align-items-center">
-                <h3 class="mb-0">PPMP Details</h3>
-                <div class="ms-3">
-                    @if ($ppmp->approval_status == 0)
-                        <span class="badge bg-warning">Pending</span>
-                    @elseif($ppmp->is_submitted == 1)
-                        <span class="badge bg-success">Approved</span>
-                    @elseif($ppmp->is_submitted == 2)
-                        <span class="badge bg-danger">Disapproved</span>
-                    @endif
+        <div class="row justify-items-center align-items-center">
+            <div class="col-6">
+                <div class="text-start">
+                    
                 </div>
             </div>
-            <div class="col-auto">
-                <button class="btn btn-sm btn-success">Approve <i class="fas fa-check ml-3"></i></button>
-                <button class="btn btn-sm btn-danger">Disapprove <i class="fas fa-x ml-3"></i></button>
+            <div class="col-6">
+                <div class="text-end">
+                    <div class="align-items-center">
+                        <span>Approval Status: </span>
+                        @if ($ppmp->approval_status == 0)
+                            <span class="badge bg-warning mb-2">Pending</span>
+                        @elseif ($ppmp->approval_status == 1)
+                            <span class="badge bg-success mb-2">Approved</span> <small>By: FMSO</small>
+                        @elseif ($ppmp->approval_status == 2)
+                            <span class="badge bg-danger mb-2">Disapproved</span>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -65,7 +68,8 @@
                 <br>
 
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered" id="table">
+                    <p><i>{{ $ppmp->createdBy->collegeOfficeUnit->college_office_unit_name }}</i></p>
+                    <table class="table table-hover table-bordered table-sm" id="table">
                         <thead class="text-center" style="background-color:#FFCC99">
                             <tr>
                                 <th rowspan="2" class="align-middle">CODE</th>

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->bigInteger('is_submitted')->default(0);
             $table->dateTime('date_submitted')->nullable();
             $table->bigInteger('approval_status')->default(0);
+            $table->foreignId('approved_by')->nullable()->constrained('users');
             $table->dateTime('date_approved')->nullable();
             $table->foreignId('prepared_by')->constrained('users');
             $table->foreignId('college_office_unit_id')->constrained('college_office_units');

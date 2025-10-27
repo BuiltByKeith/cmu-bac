@@ -46,14 +46,9 @@ class BudgetController extends Controller
 
     public function allocateBudgetToCollegeOfficeUnitPage($id, Request $request)
     {
-        // Get all years from the Year model
         $years = Year::all();
-
-        // Get the current year (where is_current = 1) or fall back to the current calendar year
         $currentYear = Year::where('is_current', 1)->first();
         $defaultYear = $currentYear ? $currentYear->year : date('Y');
-
-        // Get the selected year from the request or use the default year with is_current=1
         $year = $request->input('filterByYear', $defaultYear);
 
         $collegeOfficeUnit = CollegeOfficeUnit::findOrFail($id);
@@ -66,10 +61,18 @@ class BudgetController extends Controller
                 ->with(['wholeBudget', 'allocatedBy']);
         }])->get();
 
-        // Only get whole budgets for the selected year
-        $yearlyBudget = WholeBudget::where('year', $year)->get();
+        // Use withSum for consistent calculation
+        $yearlyBudget = WholeBudget::where('year', $year)
+            ->withSum('budgetAllocations', 'amount')
+            ->get()
+            ->map(function ($budget) {
+                $allocated = $budget->budget_allocations_sum_amount ?? 0;
+                $budget->available_amount = $budget->amount - $allocated;
+                $budget->percentage_used = $budget->amount > 0 ? round(($allocated / $budget->amount) * 100, 2) : 0;
+                $budget->is_fully_allocated = $budget->available_amount <= 0;
+                return $budget;
+            });
 
-        // Get all available years from the WholeBudget table for the dropdown
         $availableYears = WholeBudget::distinct()->pluck('year')->sort()->reverse();
 
         return view('budget.allocate_budget_to_unit_page', compact(
@@ -92,6 +95,7 @@ class BudgetController extends Controller
     public function budgetPPMPsPage()
     {
         $years = Year::all();
+
         return view('budget.ppmps_page', compact('years'));
     }
 
@@ -157,5 +161,187 @@ class BudgetController extends Controller
 
         $purchaseRequest = PurchaseRequest::findOrFail($id);
         return view('budget.purchase_request_details', compact('purchaseRequest'));
+    }
+
+    public function budgetOfficeAPPsPage()
+    {
+        return view('budget.apps_page');
+    }
+
+    public function budgetOfficeAPRsPage()
+    {
+        return view('budget.aprs_page');
+    }
+
+    public function budgetOfficeExportAPP($year)
+    {
+        $ppmps = PPMP::with([
+            'ppmpItems.item.prices' => function ($query) {
+                $query->where('is_active', 1)
+                    ->orderBy('created_at', 'desc');
+            },
+            'budgetAllocation.collegeOfficeUnit.category',
+            'budgetAllocation.accountCode',
+            'budgetAllocation.wholeBudget'
+        ])
+            ->whereHas('budgetAllocation.wholeBudget', function ($query) use ($year) {
+                $query->where('year', $year);
+            })
+            ->where('is_submitted', 1)
+            ->get();
+
+        // Check if there are any PPMPs
+        if ($ppmps->isEmpty()) {
+            return view('budget.apps_page', [
+                'year' => $year,
+                'grouped' => null
+            ]);
+        }
+
+        // Transform and collect all items with their metadata
+        $allItems = $ppmps->flatMap(function ($ppmp) {
+            $budget = $ppmp->budgetAllocation;
+            $unit = $budget->collegeOfficeUnit;
+            $category = $unit->category;
+            $accountCode = $budget->accountCode;
+
+            // Process each PPMP item
+            return $ppmp->ppmpItems->map(function ($ppmpItem) use ($budget, $unit, $category, $accountCode) {
+                $item = $ppmpItem->item;
+
+                // Calculate total quantity
+                $totalQuantity = (
+                    ($ppmpItem->january_quantity ?? 0) +
+                    ($ppmpItem->february_quantity ?? 0) +
+                    ($ppmpItem->march_quantity ?? 0) +
+                    ($ppmpItem->april_quantity ?? 0) +
+                    ($ppmpItem->may_quantity ?? 0) +
+                    ($ppmpItem->june_quantity ?? 0) +
+                    ($ppmpItem->july_quantity ?? 0) +
+                    ($ppmpItem->august_quantity ?? 0) +
+                    ($ppmpItem->september_quantity ?? 0) +
+                    ($ppmpItem->october_quantity ?? 0) +
+                    ($ppmpItem->november_quantity ?? 0) +
+                    ($ppmpItem->december_quantity ?? 0)
+                );
+
+                // Get the active price
+                $price = $item->prices->where('is_active', 1)->first();
+
+                // Use the active price or fallback to 0 if no price found
+                $itemPrice = $price ? $price->price : 0;
+
+                // Calculate cost based on quantity and item price
+                $cost = $totalQuantity * $itemPrice;
+
+                return [
+                    'account_code' => $accountCode->account_code ?? 'N/A',
+                    'account_description' => $accountCode->account_name ?? '',
+                    'category_name' => $category->category_name ?? 'N/A',
+                    'unit' => $unit->college_office_unit_name ?? 'N/A',
+                    'total' => $cost
+                ];
+            });
+        });
+
+        // Check if all items have zero cost
+        if ($allItems->isEmpty() || $allItems->sum('total') == 0) {
+            return view('budget.apps_page', [
+                'year' => $year,
+                'grouped' => null
+            ]);
+        }
+
+        // First group by account code
+        $groupedByAccount = $allItems->groupBy('account_code');
+
+        // For each account code, further group by category and sum values
+        $finalGrouped = $groupedByAccount->map(function ($accountItems, $accountCode) {
+            $groupedByCategory = $accountItems->groupBy('category_name');
+
+            return $groupedByCategory->map(function ($categoryItems, $categoryName) use ($accountCode) {
+                // Sum total values for this account code and category
+                $grandTotal = $categoryItems->sum('total');
+
+                // Get account description from the first item
+                $accountDescription = $categoryItems->first()['account_description'];
+
+                return [
+                    'account_code' => $accountCode,
+                    'account_description' => $accountDescription,
+                    'category' => $categoryName,
+                    'total' => $grandTotal
+                ];
+            });
+        });
+
+        return view('budget.apps_page', [
+            'year' => $year,
+            'grouped' => $finalGrouped
+        ]);
+    }
+
+
+
+
+    public function budgetOfficeExportAPR($year)
+    {
+        // Get all purchase requests with items
+        $prs = PurchaseRequest::with([
+            'purchaseRequestItems.item.prices' => function ($query) use ($year) {
+                $query->where('year', $year)->where('is_active', true);
+            },
+            'ppmp.budgetAllocation.wholeBudget'
+        ])
+            ->whereHas('ppmp.budgetAllocation.wholeBudget', function ($query) use ($year) {
+                $query->where('year', $year);
+            })
+            ->get();
+
+        // Consolidate items
+        $consolidatedItems = [];
+
+        foreach ($prs as $pr) {
+            foreach ($pr->purchaseRequestItems as $prItem) {
+                $itemId = $prItem->item_id;
+
+                // Calculate total quantity for this item in this PR
+                $totalQuantity = $prItem->january_quantity + $prItem->february_quantity +
+                    $prItem->march_quantity + $prItem->april_quantity +
+                    $prItem->may_quantity + $prItem->june_quantity +
+                    $prItem->july_quantity + $prItem->august_quantity +
+                    $prItem->september_quantity + $prItem->october_quantity +
+                    $prItem->november_quantity + $prItem->december_quantity;
+
+                // Add to consolidated items
+                if (isset($consolidatedItems[$itemId])) {
+                    $consolidatedItems[$itemId]['total_quantity'] += $totalQuantity;
+                } else {
+                    $price = $prItem->item->prices()->first()->price ?? 0;
+
+                    $consolidatedItems[$itemId] = [
+                        'item_name' => $prItem->item->item_name,
+                        'item_code' => $prItem->item->item_code,
+                        'item_description' => $prItem->item->item_description,
+                        'unit_of_measure' => $prItem->item->unit_of_measure,
+                        'total_quantity' => $totalQuantity,
+                        'price' => $price,
+                        'total_amount' => 0 // Will calculate below
+                    ];
+                }
+            }
+        }
+
+        // Calculate total amounts
+        foreach ($consolidatedItems as &$item) {
+            $item['total_amount'] = $item['total_quantity'] * $item['price'];
+        }
+
+        // Sort by item name
+        usort($consolidatedItems, function ($a, $b) {
+            return strcmp($a['item_name'], $b['item_name']);
+        });
+
+        return view('budget.aprs_page', compact('year', 'consolidatedItems'));
     }
 }

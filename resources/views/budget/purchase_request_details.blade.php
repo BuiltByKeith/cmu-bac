@@ -207,7 +207,7 @@
             submitButton.find('.spinner-border').removeClass('d-none');
 
             $.ajax({
-                url: "{{ route('endUserUpdatePRItem') }}",
+                url: "{{ route('budgetOfficeUpdatePRItem') }}",
                 type: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",

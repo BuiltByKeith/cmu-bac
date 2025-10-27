@@ -132,18 +132,18 @@
                     table.clear();
                     data.forEach(function(accountCode) {
                         var editButton = `<button type="button" class="btn btn-sm btn-success me-1" 
-                            onclick="editAccountCode(
-                                ${accountCode.id}, 
-                                '${accountCode.account_code.replace(/'/g, "\\'")}',
-                                '${accountCode.account_name.replace(/'/g, "\\'")}',
-                            )" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>`;
+                                onclick="editAccountCode(
+                                    ${accountCode.id}, 
+                                    '${accountCode.account_code.replace(/'/g, "\\'")}',
+                                    '${accountCode.account_name.replace(/'/g, "\\'")}',
+                                )" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>`;
 
                         var deleteButton = `<button type="button" class="btn btn-sm btn-danger" 
-                            onclick="deleteAccountCode(${accountCode.id}, '${accountCode.account_name}')" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>`;
+                                onclick="deleteAccountCode(${accountCode.id}, '${accountCode.account_name}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>`;
 
                         table.row.add([
                             accountCode.account_code,

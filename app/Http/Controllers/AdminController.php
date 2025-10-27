@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\Year;
 use Illuminate\Http\Request;
 use Illuminate\Support\Number;
+use Vinkla\Hashids\Facades\Hashids;
 
 class AdminController extends Controller
 {
@@ -76,12 +77,21 @@ class AdminController extends Controller
         return view('admin.user_management_page', compact('roles', 'units'));
     }
 
-    public function adminUserDetailsPage($id)
+    public function adminUserDetailsPage($hashid)
     {
+        $decoded = Hashids::decode($hashid);
+
+        if (empty($decoded)) {
+            abort(404); // hash is invalid or not decodable
+        }
+
+        $id = $decoded[0];
+
         $user = User::find($id);
-        $allPrivileges = Privilege::all();
+
+        $roles = Role::all();
         $collegeOfficeUnits = CollegeOfficeUnit::all();
-        return view('admin.user_details', compact('user', 'allPrivileges', 'collegeOfficeUnits'));
+        return view('admin.user_details', compact('user', 'roles', 'collegeOfficeUnits'));
     }
 
     public function adminSettingsPage()

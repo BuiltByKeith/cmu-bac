@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PPMP;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +24,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $pendingPPMPsCount = PPMP::where('approval_status', 0)->where('is_submitted', 1)->count();
+        return view('home', compact('pendingPPMPsCount'));
     }
 }

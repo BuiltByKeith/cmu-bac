@@ -22,6 +22,7 @@
                             @endforeach
                         </select>
                     </div>
+
                 </div>
 
             </div>
@@ -33,6 +34,11 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
+                        <div class="card-header">
+                            <button class="btn btn-primary btn-sm" type="button" onclick="redirectToViewAPR()">Export APP
+                                <i class="fas fa-file-export"></i></button>
+
+                        </div>
                         <div class="card-body">
                             <table id="ppmpsTable" class="table table-responsive w-100 table-hover">
                                 <thead>
@@ -141,6 +147,12 @@
     <script>
         function viewItemCategory(hashid) {
             window.location.href = `budget-view-ppmp-details/${hashid}`;
+        }
+
+        function redirectToViewAPR() {
+            const year = $('#filterByYear').val(); // get selected year from the dropdown
+            const url = `{{ route('budgetOfficeExportAPP', ['year' => '__YEAR__']) }}`.replace('__YEAR__', year);
+            window.open(url, '_blank'); // opens in a new tab
         }
     </script>
 @endsection
