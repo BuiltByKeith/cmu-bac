@@ -20,6 +20,7 @@ return new class extends Migration
             $table->bigInteger('approval_status');
             $table->bigInteger('incrementing_number')->nullable();
             $table->foreignId('signatory_id')->constrained('signatories');
+            $table->string('purpose')->nullable();
             $table->timestamps();
         });
     }

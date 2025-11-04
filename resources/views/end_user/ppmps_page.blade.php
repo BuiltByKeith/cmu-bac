@@ -65,6 +65,7 @@
                                 <tr>
                                     <th style="width: 15%">PPMP Code</th>
                                     <th style="width: 25%">Account Code</th>
+                                    <th style="width: 25%">Purpose</th>
                                     <th>Amount</th>
                                     <th style="width: 15%">Fund Source</th>
                                     <th>Submitted</th>
@@ -96,10 +97,16 @@
 
                         <div class="row mb-3">
                             <div class="col-12 mb-3">
-                                <label class="form-label">Account Code</label>
+                                <label class="form-label">Account Code <span style="color: red">*</span></label>
                                 <select name="addNewPPMPAccountCode" id="addNewPPMPAccountCode" class="form-select">
 
                                 </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Purpose</label>
+                                <textarea name="addNewPPMPPurpose" id="addNewPPMPPurpose" class="form-control" placeholder="E.g (CAS for Physics Department)"></textarea>
                             </div>
                         </div>
 
@@ -184,6 +191,7 @@
                         table.row.add([
                             ppmp.ppmpCode,
                             ppmp.accountCode,
+                            ppmp.ppmpPurpose,
                             `${ppmp.totalAmount}/${ppmp.availableBudget}`,
                             ppmp.fundSource,
                             submissionStatus,
@@ -410,6 +418,7 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                     formAddPPMPAccountCode: $('#addNewPPMPAccountCode').val(),
+                    formAddPPMPPurpose: $('#addNewPPMPPurpose').val(),
                 },
                 dataType: 'json',
                 success: function(response) {

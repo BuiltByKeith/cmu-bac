@@ -45,6 +45,7 @@
                                     <tr>
                                         <th>PPMP Code</th>
                                         <th>College/Office/Unit</th>
+                                        <th>Purpose</th>
                                         <th>Created By</th>
                                         <th>Date Submitted</th>
                                         <th>Approval Status</th>
@@ -104,6 +105,7 @@
                         table.row.add([
                             ppmp.ppmpCode,
                             ppmp.collegeOfficeUnit,
+                            ppmp.purpose,
                             ppmp.createdBy,
                             ppmp.dateSubmitted,
                             statusBadge,

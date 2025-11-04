@@ -8,7 +8,7 @@
         <div class="row mb-2 mb-xl-3 d-flex align-items-center">
             <div class="col d-flex align-items-center">
                 <h3 class="mb-0">PPMP {{ $ppmp->ppmp_code }} of
-                    {{ $ppmp->createdBy->collegeOfficeUnit->college_office_unit_name }}</h3>
+                    {{ $ppmp->createdBy->collegeOfficeUnit->college_office_unit_name }} <br><span style="font-size:12px">{{ $ppmp->purpose }}</span></h3>
                 <div class="ms-3">
                     @if ($ppmp->approval_status == 0)
                         <span class="badge bg-warning">Pending</span>

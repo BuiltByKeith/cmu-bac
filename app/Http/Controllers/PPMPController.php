@@ -98,6 +98,7 @@ class PPMPController extends Controller
                 'id' => $ppmp->id,
                 'hashid' => Hashids::encode($ppmp->id),
                 'ppmpCode' => $ppmp->ppmp_code,
+                'ppmpPurpose' => $ppmp->purpose,
                 'accountCode' => $ppmp->budgetAllocation->accountCode->account_name,
                 'fundSource' => $ppmp->budgetAllocation->wholeBudget->source_of_fund,
                 'dateSubmitted' => $ppmp->updated_at->format('F d, Y'),
@@ -116,6 +117,7 @@ class PPMPController extends Controller
     {
         $validatedData = $request->validate([
             'formAddPPMPAccountCode' => 'required|exists:budget_allocations,id|numeric',
+            'formAddPPMPPurpose'=> 'nullable',
         ]);
 
         // Get the college office unit data
@@ -158,6 +160,7 @@ class PPMPController extends Controller
         // Create the new PPMP
         PPMP::create([
             'budget_allocation_id' => $validatedData['formAddPPMPAccountCode'],
+            'purpose' => $validatedData['formAddPPMPPurpose'],
             'created_by' => Auth::user()->id,
             'ppmp_code' => $ppmpCode,
             'is_submitted' => 0,

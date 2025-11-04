@@ -117,6 +117,7 @@ class BudgetController extends Controller
                 'hashid' => Hashids::encode($ppmp->id), // ✅ Add this line
                 'ppmpCode' => $ppmp->ppmp_code,
                 'collegeOfficeUnit' => $ppmp->budgetAllocation->collegeOfficeUnit->college_office_unit_name,
+                'purpose' => $ppmp->purpose,
                 'createdBy' => $ppmp->createdBy->firstname . ' ' . strtoupper(substr($ppmp->createdBy->middlename, 0, 1)) . '. ' .  $ppmp->createdBy->lastname,
                 'dateSubmitted' => $ppmp->updated_at->format('F d, Y'),
                 'approvalStatus' => $ppmp->approval_status

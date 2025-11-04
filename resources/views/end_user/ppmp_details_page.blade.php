@@ -83,7 +83,8 @@
 
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
-                        <p><em>{{ Auth::user()->collegeOfficeUnit->college_office_unit_name }}</em></p>
+                        <p><em>{{ Auth::user()->collegeOfficeUnit->college_office_unit_name }}
+                                {{ $ppmp->purpose ? '(' . $ppmp->purpose . ')' : '' }}</em></p>
                     </div>
                     @if ($ppmp->is_submitted == 0)
                         <div class="col-xl-6 col-lg-6 col-md-6 text-end">
@@ -377,7 +378,8 @@
                 <div class="row mt-2">
                     <div class="col-12 col-md-4 text-center mb-4 mb-md-0">
                         <p class="mb-2">Prepared By:</p>
-                        <h4 class="mb-1"><ins>{{ $ppmp->budgetAllocation->collegeOfficeUnit->signatories()->first()->fullname }}</ins>
+                        <h4 class="mb-1">
+                            <ins>{{ $ppmp->signatory->fullname }}</ins>
                         </h4>
                         <small>Unit Head/College Dean</small>
                     </div>
@@ -517,7 +519,9 @@
                                         <i class="far fa-fw fa-square-exclamation"></i>
                                     </div>
                                     <div class="alert-message">
-                                        <strong>Note!</strong> To see the list of items, <a href="{{ route('endUserItemInventoryPage') }}" target="_blank">Click here.</a>
+                                        <strong>Note!</strong> To see the list of items, <a
+                                            href="{{ route('endUserItemInventoryPage') }}" target="_blank">Click
+                                            here.</a>
                                     </div>
                                 </div>
                             </div>

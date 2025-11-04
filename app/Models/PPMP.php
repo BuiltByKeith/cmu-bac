@@ -8,7 +8,7 @@ class PPMP extends Model
 {
     //
 
-    protected $fillable = ['budget_allocation_id', 'created_by', 'ppmp_code', 'is_submitted', 'incrementing_number', 'approval_status', 'signatory_id'];
+    protected $fillable = ['budget_allocation_id', 'created_by', 'ppmp_code', 'is_submitted', 'incrementing_number', 'approval_status', 'signatory_id', 'purpose'];
 
     public function budgetAllocation()
     {
