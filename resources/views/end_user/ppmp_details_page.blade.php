@@ -38,128 +38,136 @@
                     </div>
                 </div>
             </div>
-            <div class="ppmpTemplate px-3" id="ppmpTemplate">
-                <div class="text-center align-items-center mt-2">
-                    <h2><strong>PROJECT PROCUREMENT MANAGEMENT PLAN
-                            {{ $ppmp->budgetAllocation->wholeBudget->year }}</strong></h2>
-                </div>
+            <div class="container-fluid">
+                <div class="card" style="padding:25px">
+                    <div class="ppmpTemplate px-3" id="ppmpTemplate">
+                        <div class="text-center align-items-center mt-2">
+                            <h2><strong>PROJECT PROCUREMENT MANAGEMENT PLAN
+                                    {{ $ppmp->budgetAllocation->wholeBudget->year }}</strong></h2>
+                        </div>
 
 
-                <br>
-                <br>
-                <div class="mt-12">
-                    <p><em><ins>Instructions:</ins></em></p>
-                    <ol class="ml-4">
-                        <strong>
-                            <li>
-                                A PPMP is considered incorrect or invalid if
-                                <ol class="ml-8">
-                                    <li>form used is other than the prescribed format which can be downloaded only
-                                        at
-                                        <a href="https://www.cmu.edu.ph/elementor-30017/" target="_blank">www.cmu.edu.ph</a>
+                        <br>
+                        <br>
+                        <div class="mt-12">
+                            <p><em><ins>Instructions:</ins></em></p>
+                            <ol class="ml-4">
+                                <strong>
+                                    <li>
+                                        A PPMP is considered incorrect or invalid if
+                                        <ol class="ml-8">
+                                            <li>form used is other than the prescribed format which can be downloaded only
+                                                at
+                                                <a href="https://www.cmu.edu.ph/elementor-30017/"
+                                                    target="_blank">www.cmu.edu.ph</a>
+                                            </li>
+                                        </ol>
                                     </li>
-                                </ol>
-                            </li>
-                            <li>
-                                Once accomplished and finalized, the PPMP 2026 form should be:
-                                <ol class="ml-8">
-                                    <li>Saved using this format: UPDATED_PPMP2026_Name of Unit/College (e.g.
-                                        UPDATED_PPMP2026_BAC).</li>
-                                    <li>The file in excel format should be emailed to <a
-                                            href="mailto:bac@cmu.edu.ph">bac@cmu.edu.ph</a></li>
-                                    <li>Printed and signed by the Head of Unit/College Dean. The signed copy must be
-                                        submitted
-                                        to the Budget Office.</li>
-                                </ol>
-                            </li>
-                        </strong>
+                                    <li>
+                                        Once accomplished and finalized, the PPMP 2026 form should be:
+                                        <ol class="ml-8">
+                                            <li>Saved using this format: UPDATED_PPMP2026_Name of Unit/College (e.g.
+                                                UPDATED_PPMP2026_BAC).</li>
+                                            <li>The file in excel format should be emailed to <a
+                                                    href="mailto:bac@cmu.edu.ph">bac@cmu.edu.ph</a></li>
+                                            <li>Printed and signed by the Head of Unit/College Dean. The signed copy must be
+                                                submitted
+                                                to the Budget Office.</li>
+                                        </ol>
+                                    </li>
+                                </strong>
 
-                    </ol>
-                </div>
+                            </ol>
+                        </div>
 
-                <br>
+                        <br>
 
 
 
-                <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <p><em>{{ Auth::user()->collegeOfficeUnit->college_office_unit_name }}
-                                {{ $ppmp->purpose ? '(' . $ppmp->purpose . ')' : '' }}</em></p>
-                    </div>
-                    @if ($ppmp->is_submitted == 0)
-                        <div class="col-xl-6 col-lg-6 col-md-6 text-end">
-                            <button class="btn btn-sm btn-success" onclick="showAddItemToPPMPModal()"><i data-lucide="plus"
-                                    class="lucide lucide-plus"> </i> Add
-                                Item</button>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <p><em>{{ Auth::user()->collegeOfficeUnit->college_office_unit_name }}
+                                        {{ $ppmp->purpose ? '(' . $ppmp->purpose . ')' : '' }}</em></p>
+                            </div>
+                            @if ($ppmp->is_submitted == 0)
+                                <div class="col-xl-6 col-lg-6 col-md-6 text-end">
+                                    <button class="btn btn-sm btn-success" onclick="showAddItemToPPMPModal()"><i
+                                            data-lucide="plus" class="lucide lucide-plus"> </i> Add
+                                        Item</button>
+
+                                </div>
+                            @endif
+
+
 
                         </div>
-                    @endif
 
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered table-sm" id="table">
+                                <thead class="text-center" style="background-color:#FFCC99">
+                                    <tr>
+                                        <th rowspan="2" class="align-middle">CODE</th>
+                                        <th rowspan="2" class="align-middle">GENERAL DESCRIPTION</th>
+                                        <th rowspan="2" class="align-middle" style="min-width: 90px;">Unit of Measure
+                                        </th>
+                                        <th class="align-middle">QTY</th>
+                                        <th rowspan="2" class="align-middle" style="min-width: 120px;">UNIT COST</th>
+                                        <th rowspan="2" class="align-middle" style="min-width: 120px;">ESTIMATED BUDGET
+                                        </th>
+                                        <th rowspan="2" class="align-middle" style="min-width: 120px;">Mode of
+                                            Procurement</th>
+                                        <th colspan="12" class="align-middle">SCHEDULE/MILESTONES OF ACTIVITIES</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="align-middle">Size</th>
+                                        @foreach (['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as $month)
+                                            <th class="align-middle">{{ $month }}</th>
+                                        @endforeach
+                                    </tr>
+                                </thead>
 
-
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover table-bordered table-sm" id="table">
-                        <thead class="text-center" style="background-color:#FFCC99">
-                            <tr>
-                                <th rowspan="2" class="align-middle">CODE</th>
-                                <th rowspan="2" class="align-middle">GENERAL DESCRIPTION</th>
-                                <th rowspan="2" class="align-middle" style="min-width: 90px;">Unit of Measure</th>
-                                <th class="align-middle">QTY</th>
-                                <th rowspan="2" class="align-middle" style="min-width: 120px;">UNIT COST</th>
-                                <th rowspan="2" class="align-middle" style="min-width: 120px;">ESTIMATED BUDGET</th>
-                                <th rowspan="2" class="align-middle" style="min-width: 120px;">Mode of Procurement</th>
-                                <th colspan="12" class="align-middle">SCHEDULE/MILESTONES OF ACTIVITIES</th>
-                            </tr>
-                            <tr>
-                                <th class="align-middle">Size</th>
-                                @foreach (['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as $month)
-                                    <th class="align-middle">{{ $month }}</th>
-                                @endforeach
-                            </tr>
-                        </thead>
-
-                        <!-- Table Body - Reuse your existing tbody code here but with responsive classes -->
-                        <tbody>
-                            @if ($ppmp->ppmpItems && $ppmp->ppmpItems->isNotEmpty())
-                                {{-- Part I: PS-DBM Items --}}
-                                <tr>
-                                    <td colspan="20" style="background-color: #FFE497; padding: 8px;">
-                                        <div class="d-flex justify-content-between align-items-center w-100 fw-bold">
-                                            <span>PART I. AVAILABLE AT PS-DBM (MAIN WAREHOUSE AND DEPOTS)</span>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                @php
-                                    $currentCategory = null;
-                                    $psdbmItems = $ppmp->ppmpItems
-                                        ->where('item.is_psdbm', 1)
-                                        ->sortBy('item.itemCategory.item_category_name');
-                                @endphp
-
-                                @foreach ($psdbmItems as $ppmpItem)
-                                    @php
-                                        $categoryName =
-                                            $ppmpItem->item->itemCategory->item_category_name ?? 'Uncategorized';
-                                    @endphp
-
-                                    @if ($categoryName !== $currentCategory)
+                                <!-- Table Body - Reuse your existing tbody code here but with responsive classes -->
+                                <tbody>
+                                    @if ($ppmp->ppmpItems && $ppmp->ppmpItems->isNotEmpty())
+                                        {{-- Part I: PS-DBM Items --}}
                                         <tr>
-                                            <td colspan="20" class="text-start fw-bold text-uppercase"
-                                                style="background-color: #8EAADB">
-                                                {{ $categoryName }}
+                                            <td colspan="20" style="background-color: #FFE497; padding: 8px;">
+                                                <div
+                                                    class="d-flex justify-content-between align-items-center w-100 fw-bold">
+                                                    <span>PART I. AVAILABLE AT PS-DBM (MAIN WAREHOUSE AND DEPOTS)</span>
+                                                </div>
                                             </td>
                                         </tr>
-                                        @php
-                                            $currentCategory = $categoryName;
-                                        @endphp
-                                    @endif
 
-                                    {{-- Item Row --}}
-                                    <tr
-                                        onclick="openEditModal(
+                                        @php
+                                            $currentCategory = null;
+                                            $psdbmItems = $ppmp->ppmpItems
+                                                ->where('item.is_psdbm', 1)
+                                                ->sortBy('item.itemCategory.item_category_name');
+                                        @endphp
+
+                                        @foreach ($psdbmItems as $ppmpItem)
+                                            @php
+                                                $categoryName =
+                                                    $ppmpItem->item->itemCategory->item_category_name ??
+                                                    'Uncategorized';
+                                            @endphp
+
+                                            @if ($categoryName !== $currentCategory)
+                                                <tr>
+                                                    <td colspan="20" class="text-start fw-bold text-uppercase"
+                                                        style="background-color: #8EAADB">
+                                                        {{ $categoryName }}
+                                                    </td>
+                                                </tr>
+                                                @php
+                                                    $currentCategory = $categoryName;
+                                                @endphp
+                                            @endif
+
+                                            {{-- Item Row --}}
+                                            <tr
+                                                onclick="openEditModal(
                                         '{{ $ppmpItem->id }}',
                                         '{{ $ppmpItem->item->item_code }}',
                                         '{{ $ppmpItem->item->item_name }}',
@@ -184,90 +192,94 @@
                                         '{{ $ppmpItem->november_quantity ?? 0 }}',
                                         '{{ $ppmpItem->december_quantity ?? 0 }}'
                                     )">
-                                        <td class="text-center">{{ $ppmpItem->item->item_code }}</td>
-                                        <td>{{ $ppmpItem->item->item_name }}</td>
-                                        <td class="text-center">{{ $ppmpItem->item->unit_of_measure }}</td>
+                                                <td class="text-center">{{ $ppmpItem->item->item_code }}</td>
+                                                <td>{{ $ppmpItem->item->item_name }}</td>
+                                                <td class="text-center">{{ $ppmpItem->item->unit_of_measure }}</td>
 
-                                        @php
-                                            $totalQuantity =
-                                                ($ppmpItem->january_quantity ?? 0) +
-                                                ($ppmpItem->february_quantity ?? 0) +
-                                                ($ppmpItem->march_quantity ?? 0) +
-                                                ($ppmpItem->april_quantity ?? 0) +
-                                                ($ppmpItem->may_quantity ?? 0) +
-                                                ($ppmpItem->june_quantity ?? 0) +
-                                                ($ppmpItem->july_quantity ?? 0) +
-                                                ($ppmpItem->august_quantity ?? 0) +
-                                                ($ppmpItem->september_quantity ?? 0) +
-                                                ($ppmpItem->october_quantity ?? 0) +
-                                                ($ppmpItem->november_quantity ?? 0) +
-                                                ($ppmpItem->december_quantity ?? 0);
+                                                @php
+                                                    $totalQuantity =
+                                                        ($ppmpItem->january_quantity ?? 0) +
+                                                        ($ppmpItem->february_quantity ?? 0) +
+                                                        ($ppmpItem->march_quantity ?? 0) +
+                                                        ($ppmpItem->april_quantity ?? 0) +
+                                                        ($ppmpItem->may_quantity ?? 0) +
+                                                        ($ppmpItem->june_quantity ?? 0) +
+                                                        ($ppmpItem->july_quantity ?? 0) +
+                                                        ($ppmpItem->august_quantity ?? 0) +
+                                                        ($ppmpItem->september_quantity ?? 0) +
+                                                        ($ppmpItem->october_quantity ?? 0) +
+                                                        ($ppmpItem->november_quantity ?? 0) +
+                                                        ($ppmpItem->december_quantity ?? 0);
 
-                                            $itemPrice =
-                                                optional($ppmpItem->item->prices()->where('is_active', 1)->first())
-                                                    ->price ?? 0;
-                                            $estimatedBudget = $totalQuantity * $itemPrice;
-                                        @endphp
+                                                    $itemPrice =
+                                                        optional(
+                                                            $ppmpItem->item->prices()->where('is_active', 1)->first(),
+                                                        )->price ?? 0;
+                                                    $estimatedBudget = $totalQuantity * $itemPrice;
+                                                @endphp
 
-                                        <td class="text-center">{{ $totalQuantity }}</td>
-                                        <td class="text-end">{{ Number::currency($itemPrice, 'PHP') }}</td>
-                                        <td class="text-end">{{ Number::currency($estimatedBudget, 'PHP') }}</td>
-                                        <td class="text-center">PS-DBM</td>
+                                                <td class="text-center">{{ $totalQuantity }}</td>
+                                                <td class="text-end">{{ Number::currency($itemPrice, 'PHP') }}</td>
+                                                <td class="text-end">{{ Number::currency($estimatedBudget, 'PHP') }}</td>
+                                                <td class="text-center">PS-DBM</td>
 
-                                        <td class="text-center">{{ $ppmpItem->january_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->february_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->march_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->april_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->may_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->june_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->july_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->august_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->september_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->october_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->november_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->december_quantity ?? 0 }}</td>
-                                    </tr>
-                                @endforeach
+                                                <td class="text-center">{{ $ppmpItem->january_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->february_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->march_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->april_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->may_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->june_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->july_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->august_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->september_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->october_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->november_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->december_quantity ?? 0 }}</td>
+                                            </tr>
+                                        @endforeach
 
-                                {{-- Part II: Non PS-DBM Items --}}
-                                <tr>
-                                    <td colspan="20" style="background-color: #FFE497; padding: 8px;">
-                                        <div class="d-flex justify-content-between align-items-center w-100 fw-bold">
-                                            <span>PART II. OTHER ITEMS NOT AVAILABLE AT PS-DBM BUT ARE REGULARLY PURCHASED
-                                                FROM
-                                                OTHER SOURCES (NOTE: PLEASE INDICATE PRICE OF ITEMS)</span>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                @php
-                                    $currentCategory = null;
-                                    $nonPsdbmItems = $ppmp->ppmpItems
-                                        ->where('item.is_psdbm', 0)
-                                        ->sortBy('item.itemCategory.item_category_name');
-                                @endphp
-
-                                @foreach ($nonPsdbmItems as $ppmpItem)
-                                    @php
-                                        $categoryName =
-                                            $ppmpItem->item->itemCategory->item_category_name ?? 'Uncategorized';
-                                    @endphp
-
-                                    @if ($categoryName !== $currentCategory)
+                                        {{-- Part II: Non PS-DBM Items --}}
                                         <tr>
-                                            <td colspan="20" class="text-start fw-bold text-uppercase"
-                                                style="background-color: #8EAADB">
-                                                {{ $categoryName }}
+                                            <td colspan="20" style="background-color: #FFE497; padding: 8px;">
+                                                <div
+                                                    class="d-flex justify-content-between align-items-center w-100 fw-bold">
+                                                    <span>PART II. OTHER ITEMS NOT AVAILABLE AT PS-DBM BUT ARE REGULARLY
+                                                        PURCHASED
+                                                        FROM
+                                                        OTHER SOURCES (NOTE: PLEASE INDICATE PRICE OF ITEMS)</span>
+                                                </div>
                                             </td>
                                         </tr>
-                                        @php
-                                            $currentCategory = $categoryName;
-                                        @endphp
-                                    @endif
 
-                                    {{-- Item Row --}}
-                                    <tr
-                                        onclick="openEditModal(
+                                        @php
+                                            $currentCategory = null;
+                                            $nonPsdbmItems = $ppmp->ppmpItems
+                                                ->where('item.is_psdbm', 0)
+                                                ->sortBy('item.itemCategory.item_category_name');
+                                        @endphp
+
+                                        @foreach ($nonPsdbmItems as $ppmpItem)
+                                            @php
+                                                $categoryName =
+                                                    $ppmpItem->item->itemCategory->item_category_name ??
+                                                    'Uncategorized';
+                                            @endphp
+
+                                            @if ($categoryName !== $currentCategory)
+                                                <tr>
+                                                    <td colspan="20" class="text-start fw-bold text-uppercase"
+                                                        style="background-color: #8EAADB">
+                                                        {{ $categoryName }}
+                                                    </td>
+                                                </tr>
+                                                @php
+                                                    $currentCategory = $categoryName;
+                                                @endphp
+                                            @endif
+
+                                            {{-- Item Row --}}
+                                            <tr
+                                                onclick="openEditModal(
                                         '{{ $ppmpItem->id }}',
                                         '{{ $ppmpItem->item->item_code }}',
                                         '{{ $ppmpItem->item->item_name }}',
@@ -292,119 +304,132 @@
                                         '{{ $ppmpItem->november_quantity ?? 0 }}',
                                         '{{ $ppmpItem->december_quantity ?? 0 }}'
                                     )">
-                                        <td class="text-center">{{ $ppmpItem->item->item_code }}</td>
-                                        <td>{{ $ppmpItem->item->item_name }}</td>
-                                        <td class="text-center">{{ $ppmpItem->item->unit_of_measure }}</td>
+                                                <td class="text-center">{{ $ppmpItem->item->item_code }}</td>
+                                                <td>{{ $ppmpItem->item->item_name }}</td>
+                                                <td class="text-center">{{ $ppmpItem->item->unit_of_measure }}</td>
 
-                                        @php
-                                            $totalQuantity =
-                                                ($ppmpItem->january_quantity ?? 0) +
-                                                ($ppmpItem->february_quantity ?? 0) +
-                                                ($ppmpItem->march_quantity ?? 0) +
-                                                ($ppmpItem->april_quantity ?? 0) +
-                                                ($ppmpItem->may_quantity ?? 0) +
-                                                ($ppmpItem->june_quantity ?? 0) +
-                                                ($ppmpItem->july_quantity ?? 0) +
-                                                ($ppmpItem->august_quantity ?? 0) +
-                                                ($ppmpItem->september_quantity ?? 0) +
-                                                ($ppmpItem->october_quantity ?? 0) +
-                                                ($ppmpItem->november_quantity ?? 0) +
-                                                ($ppmpItem->december_quantity ?? 0);
+                                                @php
+                                                    $totalQuantity =
+                                                        ($ppmpItem->january_quantity ?? 0) +
+                                                        ($ppmpItem->february_quantity ?? 0) +
+                                                        ($ppmpItem->march_quantity ?? 0) +
+                                                        ($ppmpItem->april_quantity ?? 0) +
+                                                        ($ppmpItem->may_quantity ?? 0) +
+                                                        ($ppmpItem->june_quantity ?? 0) +
+                                                        ($ppmpItem->july_quantity ?? 0) +
+                                                        ($ppmpItem->august_quantity ?? 0) +
+                                                        ($ppmpItem->september_quantity ?? 0) +
+                                                        ($ppmpItem->october_quantity ?? 0) +
+                                                        ($ppmpItem->november_quantity ?? 0) +
+                                                        ($ppmpItem->december_quantity ?? 0);
 
-                                            $itemPrice =
-                                                optional($ppmpItem->item->prices()->where('is_active', 1)->first())
-                                                    ->price ?? 0;
-                                            $estimatedBudget = $totalQuantity * $itemPrice;
-                                        @endphp
+                                                    $itemPrice =
+                                                        optional(
+                                                            $ppmpItem->item->prices()->where('is_active', 1)->first(),
+                                                        )->price ?? 0;
+                                                    $estimatedBudget = $totalQuantity * $itemPrice;
+                                                @endphp
 
-                                        <td class="text-center">{{ $totalQuantity }}</td>
-                                        <td class="text-end">{{ Number::currency($itemPrice, 'PHP') }}</td>
-                                        <td class="text-end">{{ Number::currency($estimatedBudget, 'PHP') }}</td>
-                                        <td class="text-center">Non PS-DBM</td>
+                                                <td class="text-center">{{ $totalQuantity }}</td>
+                                                <td class="text-end">{{ Number::currency($itemPrice, 'PHP') }}</td>
+                                                <td class="text-end">{{ Number::currency($estimatedBudget, 'PHP') }}</td>
+                                                <td class="text-center">Non PS-DBM</td>
 
-                                        <td class="text-center">{{ $ppmpItem->january_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->february_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->march_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->april_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->may_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->june_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->july_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->august_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->september_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->october_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->november_quantity ?? 0 }}</td>
-                                        <td class="text-center">{{ $ppmpItem->december_quantity ?? 0 }}</td>
-                                    </tr>
-                                @endforeach
+                                                <td class="text-center">{{ $ppmpItem->january_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->february_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->march_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->april_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->may_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->june_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->july_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->august_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->september_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->october_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->november_quantity ?? 0 }}</td>
+                                                <td class="text-center">{{ $ppmpItem->december_quantity ?? 0 }}</td>
+                                            </tr>
+                                        @endforeach
 
-                                {{-- Total Budget Row --}}
-                                <tr>
-                                    <td colspan="20" class="text-start fw-bold" style="background-color: #8EAADB">
-                                        TOTAL BUDGET:
-                                        {{ Number::currency(
-                                            $ppmp->ppmpItems->sum(function ($item) {
-                                                $totalQty =
-                                                    ($item->january_quantity ?? 0) +
-                                                    ($item->february_quantity ?? 0) +
-                                                    ($item->march_quantity ?? 0) +
-                                                    ($item->april_quantity ?? 0) +
-                                                    ($item->may_quantity ?? 0) +
-                                                    ($item->june_quantity ?? 0) +
-                                                    ($item->july_quantity ?? 0) +
-                                                    ($item->august_quantity ?? 0) +
-                                                    ($item->september_quantity ?? 0) +
-                                                    ($item->october_quantity ?? 0) +
-                                                    ($item->november_quantity ?? 0) +
-                                                    ($item->december_quantity ?? 0);
-                                                return $totalQty * (optional($item->item->prices()->where('is_active', 1)->first())->price ?? 0);
-                                            }),
-                                            'PHP',
-                                        ) }}
-                                    </td>
-                                </tr>
-                            @else
-                                <tr>
-                                    <td colspan="20" class="text-center text-muted">No items available for this account
-                                        code.
-                                    </td>
-                                </tr>
+                                        {{-- Total Budget Row --}}
+                                        <tr>
+                                            <td colspan="20" class="text-start fw-bold"
+                                                style="background-color: #8EAADB">
+                                                TOTAL BUDGET:
+                                                {{ Number::currency(
+                                                    $ppmp->ppmpItems->sum(function ($item) {
+                                                        $totalQty =
+                                                            ($item->january_quantity ?? 0) +
+                                                            ($item->february_quantity ?? 0) +
+                                                            ($item->march_quantity ?? 0) +
+                                                            ($item->april_quantity ?? 0) +
+                                                            ($item->may_quantity ?? 0) +
+                                                            ($item->june_quantity ?? 0) +
+                                                            ($item->july_quantity ?? 0) +
+                                                            ($item->august_quantity ?? 0) +
+                                                            ($item->september_quantity ?? 0) +
+                                                            ($item->october_quantity ?? 0) +
+                                                            ($item->november_quantity ?? 0) +
+                                                            ($item->december_quantity ?? 0);
+                                                        return $totalQty * (optional($item->item->prices()->where('is_active', 1)->first())->price ?? 0);
+                                                    }),
+                                                    'PHP',
+                                                ) }}
+                                            </td>
+                                        </tr>
+                                    @else
+                                        <tr>
+                                            <td colspan="20" class="text-center text-muted">No items available for this
+                                                account
+                                                code.
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                        <br>
+                        <div class="row mt-2">
+                            <div class="col-12 col-md-4 text-center mb-4 mb-md-0">
+                                <p class="mb-2">Prepared By:</p>
+                                <h4 class="mb-1">
+                                    <ins>{{ $ppmp->signatory->fullname }}</ins>
+                                </h4>
+                                <small>Unit Head/College Dean</small>
+                            </div>
+                            <div class="col-12 col-md-4 text-center mb-4 mb-md-0">
+                                <p class="mb-2">Reviewed By:</p>
+                                <h4 class="mb-1"><ins>CHARLIE A. MUNDAL</ins></h4>
+                                <small>Head, Budget Office</small>
+                            </div>
+                            <div class="col-12 col-md-4 text-center">
+                                <p class="mb-2">Approved By:</p>
+                                <h4 class="mb-1"><ins>ROLITO G. EBALLE, Ph. D</ins></h4>
+                                <small>University President</small>
+                            </div>
+                        </div>
+                        <div class="text-center mt-5">
+
+                            @if ($ppmp->approval_status == 0)
+                                @if ($ppmp->is_submitted == 0)
+                                    <button type="submit" class="btn btn-sm btn-success"
+                                        onclick="submitPPMPTemplate({{ $ppmp->id }}, {{ $ppmp->is_submitted }})">Submit</button>
+                                @elseif ($ppmp->is_submitted == 1)
+                                    <button type="submit" class="btn btn-sm btn-warning"
+                                        onclick="submitPPMPTemplate({{ $ppmp->id }}, {{ $ppmp->is_submitted }})">Unsubmit</button>
+                                @endif
                             @endif
-                        </tbody>
-                    </table>
-                </div>
+                        </div>
+                        <div class="text-center mt-5">
 
+                            @if ($ppmp->approval_status == 1)
+                                <button class="btn btn-sm btn-primary" onclick="printPPMP()">Print PPMP <i
+                                        class="fas fa-print"></i></button>
+                            @endif
+                        </div>
+                    </div>
 
-                <br>
-                <div class="row mt-2">
-                    <div class="col-12 col-md-4 text-center mb-4 mb-md-0">
-                        <p class="mb-2">Prepared By:</p>
-                        <h4 class="mb-1">
-                            <ins>{{ $ppmp->signatory->fullname }}</ins>
-                        </h4>
-                        <small>Unit Head/College Dean</small>
-                    </div>
-                    <div class="col-12 col-md-4 text-center mb-4 mb-md-0">
-                        <p class="mb-2">Reviewed By:</p>
-                        <h4 class="mb-1"><ins>CHARLIE A. MUNDAL</ins></h4>
-                        <small>Head, Budget Office</small>
-                    </div>
-                    <div class="col-12 col-md-4 text-center">
-                        <p class="mb-2">Approved By:</p>
-                        <h4 class="mb-1"><ins>ROLITO G. EBALLE, Ph. D</ins></h4>
-                        <small>University President</small>
-                    </div>
-                </div>
-                <div class="text-center mt-5">
-
-                    @if ($ppmp->approval_status == 0)
-                        @if ($ppmp->is_submitted == 0)
-                            <button type="submit" class="btn btn-sm btn-success"
-                                onclick="submitPPMPTemplate({{ $ppmp->id }}, {{ $ppmp->is_submitted }})">Submit</button>
-                        @elseif ($ppmp->is_submitted == 1)
-                            <button type="submit" class="btn btn-sm btn-warning"
-                                onclick="submitPPMPTemplate({{ $ppmp->id }}, {{ $ppmp->is_submitted }})">Unsubmit</button>
-                        @endif
-                    @endif
                 </div>
             </div>
             <div class="container-fluid  mt-5">
@@ -1126,5 +1151,140 @@
                 }
             });
         });
+    </script>
+
+    <script>
+        function printPPMP() {
+            // Clone the content to avoid modifying the original
+            const printContent = document.getElementById('ppmpTemplate').cloneNode(true);
+
+            // Remove all buttons from the cloned content
+            const buttons = printContent.querySelectorAll('button, .btn');
+            buttons.forEach(btn => btn.remove());
+
+            // Get the year and office name for the filename
+            const year = '{{ $ppmp->budgetAllocation->wholeBudget->year }}';
+            const officeName = '{{ Auth::user()->collegeOfficeUnit->college_office_unit_name }}';
+
+            // Get current date in YYYY-MM-DD format
+            const today = new Date();
+            const dateString = today.getFullYear() + '-' +
+                String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                String(today.getDate()).padStart(2, '0');
+
+            const filename = `PPMP_${year}_${officeName.replace(/[^a-zA-Z0-9]/g, '_')}_${dateString}`;
+
+            // Open a new window
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+            // Write the content with styling including table colors and footer
+            printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${filename}</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+                body { 
+                    padding: 20px; 
+                    margin: 0;
+                    position: relative;
+                    min-height: 100vh;
+                }
+                
+                table { 
+                    border-collapse: collapse !important; 
+                    width: 100%;
+                }
+                
+                table td, table th { 
+                    border: 1px solid #000 !important; 
+                    padding: 8px; 
+                }
+                
+                /* Preserve table header colors */
+                thead {
+                    background-color: #FFCC99 !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                
+                /* Preserve row background colors */
+                tr td[style*="background-color: #FFE497"],
+                tr td[style*="background-color:#FFE497"] {
+                    background-color: #FFE497 !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                
+                tr td[style*="background-color: #8EAADB"],
+                tr td[style*="background-color:#8EAADB"] {
+                    background-color: #8EAADB !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                
+                .table-hover tbody tr:hover { 
+                    background-color: transparent !important; 
+                }
+                
+                /* Preserve inline styles */
+                * {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                
+                @page {
+                    margin: 0.5cm;
+                    size: auto;
+                }
+                
+                @media print {
+                    body { 
+                        padding: 20px; 
+                        margin: 0;
+                    }
+                    
+                    @page {
+                        margin: 0.5cm;
+                    }
+                    
+                    html, body {
+                        height: 100%;
+                        margin: 0 !important;
+                        padding: 25px !important;
+                    }
+                    
+                    .print-footer {
+                        page-break-inside: avoid;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            ${printContent.innerHTML}
+            
+            <div class="print-footer" style="margin-top:40px; padding-top:20px; border-top:2px solid #333; font-size:12px; color:#666; text-align:left;">
+  <div style="padding:5px;">
+    <strong>ProcureNet</strong><br>
+    Central Mindanao University<br>
+    Software Development Department
+  </div>
+</div>
+
+
+        </body>
+        </html>
+    `);
+
+            // Close document writing
+            printWindow.document.close();
+
+            // Wait for content to load, then print
+            printWindow.onload = function() {
+                printWindow.print();
+                printWindow.close();
+            };
+        }
     </script>
 @endsection

@@ -8,7 +8,8 @@
         <div class="row mb-2 mb-xl-3 d-flex align-items-center">
             <div class="col d-flex align-items-center">
                 <h3 class="mb-0">PPMP {{ $ppmp->ppmp_code }} of
-                    {{ $ppmp->createdBy->collegeOfficeUnit->college_office_unit_name }} <br><span style="font-size:12px">{{ $ppmp->purpose }}</span></h3>
+                    {{ $ppmp->createdBy->collegeOfficeUnit->college_office_unit_name }} <br><span
+                        style="font-size:12px">{{ $ppmp->purpose }}</span></h3>
                 <div class="ms-3">
                     @if ($ppmp->approval_status == 0)
                         <span class="badge bg-warning">Pending</span>
@@ -288,7 +289,16 @@
                             @endif
                         </tbody>
                     </table>
+                    <div class="text-center mt-5">
+
+                        @if ($ppmp->approval_status == 1)
+                            <button class="btn btn-sm btn-primary" onclick="printPPMP()">Print PPMP <i
+                                    class="fas fa-print"></i></button>
+                        @endif
+                    </div>
                 </div>
+
+
             </div>
         </div>
         <div class="card">
@@ -478,7 +488,9 @@
                 if (result.isConfirmed) {
                     // Show loading state
                     submitButton.prop('disabled', true);
-                    submitButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+                    submitButton.html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+                    );
 
                     $.ajax({
                         url: "{{ route('budgetOfficeUpdatePPMPStatus') }}",
@@ -538,7 +550,9 @@
 
             // Show loading state
             submitButton.prop('disabled', true);
-            submitButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
+            submitButton.html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...'
+            );
 
             $.ajax({
                 url: $(this).attr('action'),
@@ -580,6 +594,141 @@
                 }
             });
         });
+    </script>
+
+    <script>
+        function printPPMP() {
+            // Clone the content to avoid modifying the original
+            const printContent = document.getElementById('ppmpTemplate').cloneNode(true);
+
+            // Remove all buttons from the cloned content
+            const buttons = printContent.querySelectorAll('button, .btn');
+            buttons.forEach(btn => btn.remove());
+
+            // Get the year and office name for the filename
+            const year = '{{ $ppmp->budgetAllocation->wholeBudget->year }}';
+            const officeName = '{{ Auth::user()->collegeOfficeUnit->college_office_unit_name }}';
+
+            // Get current date in YYYY-MM-DD format
+            const today = new Date();
+            const dateString = today.getFullYear() + '-' +
+                String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                String(today.getDate()).padStart(2, '0');
+
+            const filename = `PPMP_${year}_${officeName.replace(/[^a-zA-Z0-9]/g, '_')}_${dateString}`;
+
+            // Open a new window
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+            // Write the content with styling including table colors and footer
+            printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${filename}</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+                body { 
+                    padding: 20px; 
+                    margin: 0;
+                    position: relative;
+                    min-height: 100vh;
+                }
+                
+                table { 
+                    border-collapse: collapse !important; 
+                    width: 100%;
+                }
+                
+                table td, table th { 
+                    border: 1px solid #000 !important; 
+                    padding: 8px; 
+                }
+                
+                /* Preserve table header colors */
+                thead {
+                    background-color: #FFCC99 !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                
+                /* Preserve row background colors */
+                tr td[style*="background-color: #FFE497"],
+                tr td[style*="background-color:#FFE497"] {
+                    background-color: #FFE497 !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                
+                tr td[style*="background-color: #8EAADB"],
+                tr td[style*="background-color:#8EAADB"] {
+                    background-color: #8EAADB !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                
+                .table-hover tbody tr:hover { 
+                    background-color: transparent !important; 
+                }
+                
+                /* Preserve inline styles */
+                * {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                
+                @page {
+                    margin: 0.5cm;
+                    size: auto;
+                }
+                
+                @media print {
+                    body { 
+                        padding: 20px; 
+                        margin: 0;
+                    }
+                    
+                    @page {
+                        margin: 0.5cm;
+                    }
+                    
+                    html, body {
+                        height: 100%;
+                        margin: 0 !important;
+                        padding: 25px !important;
+                    }
+                    
+                    .print-footer {
+                        page-break-inside: avoid;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            ${printContent.innerHTML}
+            
+            <div class="print-footer" style="margin-top:40px; padding-top:20px; border-top:2px solid #333; font-size:12px; color:#666; text-align:left;">
+  <div style="padding:5px;">
+    <strong>ProcureNet</strong><br>
+    Central Mindanao University<br>
+    Software Development Department
+  </div>
+</div>
+
+
+        </body>
+        </html>
+    `);
+
+            // Close document writing
+            printWindow.document.close();
+
+            // Wait for content to load, then print
+            printWindow.onload = function() {
+                printWindow.print();
+                printWindow.close();
+            };
+        }
     </script>
 
 @endsection
