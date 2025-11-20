@@ -34,6 +34,7 @@ class PPMPItemController extends Controller
             return [
                 'id' => $item->id,
                 'text' => $item->item_name . ' --- ' . $priceText,
+                'mode_of_procurement' => $item->is_psdbm,
             ];
         });
 
@@ -61,7 +62,8 @@ class PPMPItemController extends Controller
             'sepMilsQuantity' => 'nullable|numeric|min:0',
             'octMilsQuantity' => 'nullable|numeric|min:0',
             'novMilsQuantity' => 'nullable|numeric|min:0',
-            'decMilsQuantity' => 'nullable|numeric|min:0'
+            'decMilsQuantity' => 'nullable|numeric|min:0',
+            'modeOfProcurement' => 'nullable|string|max:255'
         ]);
 
         $ppmp = PPMP::findOrFail($validatedData['ppmpId']);
@@ -127,6 +129,7 @@ class PPMPItemController extends Controller
             'october_quantity' => $validatedData['octMilsQuantity'] ?? 0,
             'november_quantity' => $validatedData['novMilsQuantity'] ?? 0,
             'december_quantity' => $validatedData['decMilsQuantity'] ?? 0,
+            'mode_of_procurement' => $validatedData['modeOfProcurement'] ? $validatedData['modeOfProcurement'] : 'PSDBM',
         ]);
 
         return response()->json(['success' => true, 'message' => 'Item added to PPMP successfully!']);

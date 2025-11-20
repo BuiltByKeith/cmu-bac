@@ -9,7 +9,7 @@ class PPMPItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['ppmp_id', 'item_id', 'january_quantity', 'february_quantity', 'march_quantity', 'april_quantity', 'may_quantity', 'june_quantity', 'july_quantity', 'august_quantity', 'september_quantity', 'october_quantity', 'november_quantity', 'december_quantity'];
+    protected $fillable = ['ppmp_id', 'item_id', 'january_quantity', 'february_quantity', 'march_quantity', 'april_quantity', 'may_quantity', 'june_quantity', 'july_quantity', 'august_quantity', 'september_quantity', 'october_quantity', 'november_quantity', 'december_quantity', 'mode_of_procurement', 'source'];
 
 
     public function ppmp()

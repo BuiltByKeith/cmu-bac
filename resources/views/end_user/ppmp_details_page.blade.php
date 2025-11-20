@@ -333,7 +333,7 @@
                                                 <td class="text-center">{{ $totalQuantity }}</td>
                                                 <td class="text-end">{{ Number::currency($itemPrice, 'PHP') }}</td>
                                                 <td class="text-end">{{ Number::currency($estimatedBudget, 'PHP') }}</td>
-                                                <td class="text-center">Non PS-DBM</td>
+                                                <td class="text-center">{{ $ppmpItem->mode_of_procurement }}</td>
 
                                                 <td class="text-center">{{ $ppmpItem->january_quantity ?? 0 }}</td>
                                                 <td class="text-center">{{ $ppmpItem->february_quantity ?? 0 }}</td>
@@ -563,6 +563,29 @@
                                 <label class="form-label">Select an Item to Add</label>
                                 <select class="form-select select2" style="width: 100%" name="formSelectItemToPPMP"
                                     id="formSelectItemToPPMP" required onchange="toggleMilestoneTable()">
+                                </select>
+                            </div>
+                            <div class="col-12 mb-3" id="nonPsdbmAlert" style="display:none;"><small style="color: red"><i class="fas fa-warning"></i> The selected item is
+                                    not available on DBM, please select from the options below what mode of procurement.</small></div>
+                            <div class="col-12 mb-3" id="nonPsdbmModeOfProcurementWrap" style="display:none;">
+                                <label class="form-label">Mode of Procurement</label>
+                                <select class="form-select select2" style="width:100%"
+                                    name="formSelectNonPsdbmModeOfProcurement" id="formSelectNonPsdbmModeOfProcurement">
+                                    <option value="">Select mode...</option>
+                                    <!-- Placeholder static options; replace or populate via AJAX as needed -->
+                                    <option value="Competitive Bidding">Competitive Bidding</option>
+                                    <option value="Limited Source Bidding">Limited Source Bidding</option>
+                                    <option value="Competitive Dialogue">Competitive Dialogue</option>
+                                    <option value="Unsolicited Offer with Bid Matching">Unsolicited Offer with Bid Matching
+                                    </option>
+                                    <option value="Direct Contracting">Direct Contracting</option>
+                                    <option value="Direct Acquisition">Direct Acquisition</option>
+                                    <option value="Repeat Order">Repeat Order</option>
+                                    <option value="Small Value Procurement">Small Value Procurement</option>
+                                    <option value="Negotiated Procurement">Negotiated Procurement</option>
+                                    <option value="Direct Sales">Direct Sales</option>
+                                    <option value="Direct Procurement for Science, Technology and Innovation">Direct
+                                        Procurement for Science, Technology and Innovation</option>
                                 </select>
                             </div>
 
@@ -874,6 +897,38 @@
     </script>
 
     <script>
+        $(document).on('select2:select', '#formSelectItemToPPMP', function(e) {
+
+            const data = e.params.data || {}; // mode_of_procurement is returned by the fetchItemsForPPMP endpoint
+
+            const mop = data.mode_of_procurement;
+
+            if (mop === 0 || mop === '0' || mop === false) {
+                $('#nonPsdbmModeOfProcurementWrap').show();
+                $('#nonPsdbmAlert').show();
+                $('#formSelectNonPsdbmModeOfProcurement').prop('required',
+                    true); // initialize select2 only when shown
+
+                if (!$('#formSelectNonPsdbmModeOfProcurement').hasClass('select2-hidden-accessible')) {
+                    $('#formSelectNonPsdbmModeOfProcurement').select2({
+                        dropdownParent: $("#addItemToPPMPModal"),
+                        placeholder: "Select source"
+                    });
+                }
+            } else {
+                $('#nonPsdbmModeOfProcurementWrap').hide();
+                $('#nonPsdbmAlert').hide();
+                $('#formSelectNonPsdbmModeOfProcurement').prop('required', false).val('').trigger('change');
+            }
+        });
+        // hide when cleared
+        $(document).on('select2:clear', '#formSelectItemToPPMP', function() {
+            $('#nonPsdbmModeOfProcurementWrap').hide();
+            $('#formSelectNonPsdbmModeOfProcurement').prop('required', false).val('').trigger('change');
+        });
+    </script>
+
+    <script>
         $(document).ready(function() {
             $('#addItemToPPMPModal').on('shown.bs.modal', function() {
                 $("#formSelectItemToPPMP").select2({
@@ -901,6 +956,11 @@
                             };
                         }
                     }
+                }); // initialize the non-psdbm select2 (keeps it ready but hidden initially)
+                $('#formSelectNonPsdbmModeOfProcurement').select2({
+                    dropdownParent: $("#addItemToPPMPModal"),
+                    placeholder: "Select source",
+                    allowClear: true
                 });
             });
         });
@@ -932,6 +992,8 @@
                     ppmpId: $('#formPPMPId').val(),
                     remainingBudget: $('#formPPMPRemainingBudget').val(),
                     itemId: $('#formSelectItemToPPMP').val(),
+                    modeOfProcurement: $('#formSelectNonPsdbmModeOfProcurement')
+                        .val(), // optional, present when non-PSDBM
                     janMilsQuantity: $('#janMilestoneQuantity').val(),
                     febMilsQuantity: $('#febMilestoneQuantity').val(),
                     marMilsQuantity: $('#marMilestoneQuantity').val(),
@@ -1177,7 +1239,7 @@
             // Open a new window
             const printWindow = window.open('', '_blank', 'width=800,height=600');
 
-            // Write the content with styling including table colors and footer
+            // Write the content with styling including table colors and a fixed footer that prints on every page
             printWindow.document.write(`
         <!DOCTYPE html>
         <html>
@@ -1185,30 +1247,29 @@
             <title>${filename}</title>
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
             <style>
-                body { 
-                    padding: 20px; 
+                html, body {
                     margin: 0;
-                    position: relative;
-                    min-height: 100vh;
+                    padding: 20px 20px 50px 20px; /* leave space at bottom for fixed footer */
+                    min-height: 100%;
                 }
-                
-                table { 
-                    border-collapse: collapse !important; 
+
+                table {
+                    border-collapse: collapse !important;
                     width: 100%;
                 }
-                
-                table td, table th { 
-                    border: 1px solid #000 !important; 
-                    padding: 8px; 
+
+                table td, table th {
+                    border: 1px solid #000 !important;
+                    padding: 8px;
                 }
-                
+
                 /* Preserve table header colors */
                 thead {
                     background-color: #FFCC99 !important;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
-                
+
                 /* Preserve row background colors */
                 tr td[style*="background-color: #FFE497"],
                 tr td[style*="background-color:#FFE497"] {
@@ -1216,62 +1277,65 @@
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
-                
+
                 tr td[style*="background-color: #8EAADB"],
                 tr td[style*="background-color:#8EAADB"] {
                     background-color: #8EAADB !important;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
-                
-                .table-hover tbody tr:hover { 
-                    background-color: transparent !important; 
+
+                .table-hover tbody tr:hover {
+                    background-color: transparent !important;
                 }
-                
+
                 /* Preserve inline styles */
                 * {
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
-                
+
+                /* Fixed footer that should appear on every printed page */
+                .print-footer {
+                    position: fixed;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    height: 30px;
+                    line-height: 30px;
+                    text-align: center;
+                    font-size: 11px;
+                    color: #333;
+                    background: #fff;
+                    border-top: 1px solid #ddd;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
                 @page {
                     margin: 0.5cm;
                     size: auto;
                 }
-                
+
                 @media print {
-                    body { 
-                        padding: 20px; 
-                        margin: 0;
-                    }
-                    
-                    @page {
-                        margin: 0.5cm;
-                    }
-                    
                     html, body {
                         height: 100%;
                         margin: 0 !important;
-                        padding: 25px !important;
+                        padding: 20px 20px 50px 20px !important; /* ensure content doesn't overlap footer */
                     }
-                    
+
                     .print-footer {
-                        page-break-inside: avoid;
+                        position: fixed;
                     }
                 }
             </style>
         </head>
         <body>
             ${printContent.innerHTML}
-            
-            <div class="print-footer" style="margin-top:40px; padding-top:20px; border-top:2px solid #333; font-size:12px; color:#666; text-align:left;">
-  <div style="padding:5px;">
-    <strong>ProcureNet</strong><br>
-    Central Mindanao University<br>
-    Software Development Department
-  </div>
-</div>
 
+            <div class="print-footer">
+                <b>ProcureNet</b> | Central Mindanao University
+            </div>
 
         </body>
         </html>

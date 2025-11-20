@@ -27,6 +27,7 @@ return new class extends Migration
             $table->integer('october_quantity');
             $table->integer('november_quantity');
             $table->integer('december_quantity');
+            $table->string('mode_of_procurement')->nullable();
             $table->timestamps();
         });
     }
